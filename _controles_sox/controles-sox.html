@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Controles Internos, Conformidade e SOX · ADS · Senac Rio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,800;1,9..144,300;1,9..144,700&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{--ore:#F07830;--ore-deep:#D45E18;--ore-mid:#F59050;--ore-glow:#FDB97A;--ore-soft:#FFF5EE;--ore-muted:#FDDCC0;--ore-border:#FAC89A;--bg:#FFFBF7;--surface:#FFFFFF;--surface2:#FFF8F2;--text:#2C1A0A;--text2:#6B3E1E;--muted:#A06840;--border:#F0E0D0;--green:#16A34A;--green-soft:#F0FDF4;--blue:#1D6FA4;--blue-soft:#EFF6FF;--amber:#D97706;--amber-soft:#FFFBEB;--red:#DC2626;--red-soft:#FEF2F2;--purple:#7C3AED;--purple-soft:#F5F3FF;--radius:12px;--shadow:0 2px 16px rgba(200,100,30,.07);--sidebar-w:268px;--font:'DM Sans',system-ui,sans-serif;--mono:'DM Mono',monospace}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth;font-size:15px}body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.75}
+#progress{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--ore),var(--ore-glow));z-index:100;width:0%;transition:width .1s}
+#sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;background:var(--bg);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;z-index:50;transition:transform .25s ease}#sidebar.hidden{transform:translateX(-100%)}
+.sidebar-logo{padding:24px 24px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}.logo-icon{width:34px;height:34px;background:var(--ore);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}.logo-text{font-size:.92rem;font-weight:700;color:var(--ore-deep);line-height:1.2}.logo-sub{font-size:.72rem;font-weight:400;color:var(--muted)}
+.sidebar-nav{flex:1;overflow-y:auto;padding:16px 0}.nav-group-label{padding:8px 24px 4px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}.nav-item{display:flex;align-items:center;gap:10px;padding:8px 24px;font-size:.82rem;color:var(--muted);text-decoration:none;border-left:2px solid transparent;transition:all .15s}.nav-item:hover{background:var(--ore-soft);color:var(--ore-deep);border-left-color:var(--ore-border)}.nav-item.active{background:var(--ore-soft);color:var(--ore-deep);font-weight:600;border-left-color:var(--ore)}.nav-num{font-family:var(--mono);font-size:.68rem;color:var(--muted);min-width:22px}
+.sidebar-footer{padding:16px 24px;border-top:1px solid var(--border);font-size:.75rem;color:var(--muted)}
+#sidebar-toggle{position:fixed;top:50%;left:var(--sidebar-w);transform:translateY(-50%) translateX(-50%);z-index:60;width:20px;height:48px;background:var(--ore);border:none;border-radius:0 6px 6px 0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:left .25s ease,background .15s;color:#fff;font-size:.65rem}#sidebar-toggle:hover{background:var(--ore-deep)}#sidebar-toggle.hidden{left:0;transform:translateY(-50%) translateX(0)}
+#main{margin-left:var(--sidebar-w);min-height:100vh;transition:margin-left .25s ease}#main.expanded{margin-left:0}
+.topbar{position:sticky;top:0;z-index:40;background:rgba(255,251,247,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px 48px;display:flex;align-items:center;justify-content:space-between;gap:16px}.topbar-back{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;font-weight:600;color:var(--ore-deep);background:var(--ore-soft);border:1px solid var(--ore-muted);padding:5px 12px;border-radius:7px;text-decoration:none;transition:background .15s;flex-shrink:0}.topbar-back:hover{background:var(--ore-muted)}.topbar-title{font-size:.88rem;font-weight:600;color:var(--text2)}.topbar-tags{display:flex;gap:8px;flex-wrap:wrap}.chip{font-size:.72rem;font-weight:600;padding:3px 10px;border-radius:20px;background:var(--ore-muted);color:var(--ore-deep);border:1px solid var(--ore-border);font-family:var(--mono)}.theme-toggle{width:32px;height:32px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,border-color .15s;flex-shrink:0;line-height:1}.theme-toggle:hover{background:var(--ore-muted);border-color:var(--ore-border)}
+.content{max-width:820px;margin:0 auto;padding:56px 48px 120px}
+.page-header{margin-bottom:48px;padding-bottom:36px;border-bottom:1px solid var(--border)}.page-header .eyebrow{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ore);margin-bottom:12px}.page-header h1{font-family:'Fraunces',serif;font-size:2.2rem;font-weight:700;letter-spacing:-.025em;color:var(--text);line-height:1.2;margin-bottom:14px}.page-header p{font-size:1rem;color:var(--muted);max-width:580px;margin-bottom:24px;line-height:1.7}.badge-row{display:flex;gap:8px;flex-wrap:wrap}.badge{font-size:.72rem;font-weight:600;padding:4px 12px;border-radius:6px;background:var(--ore-soft);border:1px solid var(--ore-border);color:var(--ore-deep);font-family:var(--mono)}
+.section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:36px 40px;margin-bottom:24px;scroll-margin-top:80px;box-shadow:var(--shadow)}.section-header{display:flex;align-items:center;gap:14px;margin-bottom:26px;padding-bottom:18px;border-bottom:2px solid var(--border)}.sec-num{width:34px;height:34px;min-width:34px;background:var(--ore-deep);color:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;font-weight:500}.section h2{font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:var(--ore-deep);letter-spacing:-.01em}
+h3{font-size:15px;font-weight:700;color:var(--ore-deep);margin:26px 0 11px;padding-left:12px;border-left:3px solid var(--ore)}p{margin-bottom:13px;color:var(--text2);font-size:14.5px}strong{color:var(--text)}ul,ol{padding-left:20px;margin-bottom:13px}li{margin-bottom:6px;color:var(--text2);font-size:14px}
+.table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);margin:16px 0}table{border-collapse:collapse;width:100%;font-size:13.5px}thead th{background:var(--ore-deep);color:#fff;padding:10px 15px;text-align:left;font-weight:600;font-size:12px;letter-spacing:.03em}tbody td{padding:9px 15px;border-bottom:1px solid var(--border);color:var(--text2);line-height:1.55}tbody tr:last-child td{border-bottom:none}tbody tr:hover td{background:var(--ore-soft)}tbody td:first-child{font-weight:600;color:var(--ore-deep)}
+.callout{display:flex;gap:12px;padding:13px 17px;border-radius:var(--radius);margin:14px 0;font-size:13.5px;line-height:1.6}.callout-icon{font-size:17px;flex-shrink:0;margin-top:1px}.callout.info{background:var(--blue-soft);border-left:4px solid var(--blue);color:#1e3a5f}.callout.tip{background:var(--green-soft);border-left:4px solid var(--green);color:#14532d}.callout.warning{background:var(--amber-soft);border-left:4px solid var(--amber);color:#78350f}.callout.danger{background:var(--red-soft);border-left:4px solid var(--red);color:#7f1d1d}.callout.purple{background:var(--purple-soft);border-left:4px solid var(--purple);color:#4c1d95}
+.highlight-box{background:var(--ore-soft);border:1px solid var(--ore-border);border-left:4px solid var(--ore);border-radius:var(--radius);padding:18px 22px;margin:16px 0}.highlight-box h4{font-family:'Fraunces',serif;font-size:13.5px;font-weight:700;color:var(--ore-deep);margin-bottom:7px}.highlight-box p{font-size:13.5px;margin:0;color:var(--text2)}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:13px;margin:16px 0}.card{background:var(--ore-soft);border:1px solid var(--border);border-radius:var(--radius);padding:17px 19px}.card-icon{font-size:21px;margin-bottom:8px;display:block}.card h3{font-size:13px;font-weight:700;color:var(--ore-deep);margin:0 0 5px;padding:0;border:none;font-family:var(--font)}.card p{font-size:13px;color:var(--muted);margin:0;line-height:1.55}
+.step-list{list-style:none;padding:0;margin:14px 0}.step-list li{display:flex;gap:13px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--border)}.step-list li:last-child{border-bottom:none}.step-badge{min-width:27px;height:27px;background:var(--ore);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:2px}.step-list li span{font-size:14px;color:var(--text2)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}.col-card{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}.col-head{padding:12px 18px;font-weight:700;font-size:13.5px;color:#fff}.col-head.a{background:var(--ore-deep)}.col-head.b{background:var(--blue)}.col-head.c{background:var(--green)}.col-body{padding:16px 18px;background:var(--surface)}.col-body ul{list-style:none;padding:0}.col-body li{font-size:13px;color:var(--text2);padding:5px 0;border-bottom:1px solid var(--border);display:flex;gap:8px}.col-body li:last-child{border-bottom:none}.col-body li::before{content:'→';color:var(--ore);font-weight:700;flex-shrink:0}
+.coso-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:16px 0}.coso-col{border-radius:var(--radius);overflow:hidden}.coso-head{padding:10px 8px;text-align:center;font-size:11px;font-weight:700;color:#fff;background:var(--ore-deep)}.coso-body{padding:10px 8px;background:var(--ore-soft);font-size:11.5px;color:var(--text2)}.coso-body li{list-style:none;padding:3px 0;border-bottom:1px solid var(--border);font-size:11px}.coso-body li:last-child{border-bottom:none}
+.pill-row{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0}.pill{padding:3px 11px;border-radius:20px;font-size:12px;font-weight:600}.pill.ore{background:var(--ore-soft);color:var(--ore-deep);border:1px solid var(--ore-border)}.pill.blue{background:#dbeafe;color:#1e40af;border:1px solid #93c5fd}.pill.green{background:#dcfce7;color:#166534;border:1px solid #86efac}.pill.amber{background:#fef3c7;color:#92400e;border:1px solid #fcd34d}.pill.red{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5}.pill.purple{background:#f3e8ff;color:#6b21a8;border:1px solid #d8b4fe}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--ore-border);border-radius:3px}::-webkit-scrollbar-thumb:hover{background:var(--ore-mid)}
+@media(max-width:860px){#sidebar,#sidebar-toggle{display:none}#main{margin-left:0}.content{padding:32px 20px 60px}.topbar{padding:12px 20px}.two-col,.coso-grid{grid-template-columns:1fr}}
+body.dark{--bg:#1a0f07;--surface:#201208;--surface2:#2a1a0c;--text:#FFF5EE;--text2:#FDDCC0;--muted:#B07840;--border:#3d2010}
+body.dark #sidebar{background:#140a03;border-color:var(--border)}body.dark .topbar{background:rgba(20,10,3,.93)}body.dark .sidebar-footer,body.dark .sidebar-logo{border-color:var(--border)}body.dark .section{background:var(--surface)}body.dark .highlight-box,body.dark .card,body.dark .col-body,body.dark .coso-body{background:#2a1a0c}body.dark tbody td{color:var(--text2)}body.dark tbody tr:hover td{background:#2a1a0c}
+</style>
+<script>if(localStorage.getItem('theme')==='dark')document.body.classList.add('dark');</script>
+</head>
+<body>
+<div id="progress"></div>
+<button id="sidebar-toggle">‹</button>
+<aside id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">🏛️</div>
+    <div><div class="logo-text">Controles e SOX</div><div class="logo-sub">ADS · Senac Rio</div></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-group-label">Módulo 1 — Controles Internos</div>
+    <a class="nav-item" href="#s1"><span class="nav-num">01</span>O que são controles internos</a>
+    <a class="nav-item" href="#s2"><span class="nav-num">02</span>Framework COSO</a>
+    <a class="nav-item" href="#s3"><span class="nav-num">03</span>Tipos de controles</a>
+    <a class="nav-item" href="#s4"><span class="nav-num">04</span>Segregação de funções</a>
+    <div class="nav-group-label">Módulo 2 — Conformidade</div>
+    <a class="nav-item" href="#s5"><span class="nav-num">05</span>O conceito de conformidade</a>
+    <a class="nav-item" href="#s6"><span class="nav-num">06</span>Frameworks de conformidade</a>
+    <a class="nav-item" href="#s7"><span class="nav-num">07</span>Auditoria de conformidade de TI</a>
+    <div class="nav-group-label">Módulo 3 — SOX</div>
+    <a class="nav-item" href="#s8"><span class="nav-num">08</span>Origem e contexto da SOX</a>
+    <a class="nav-item" href="#s9"><span class="nav-num">09</span>Seções-chave da SOX</a>
+    <a class="nav-item" href="#s10"><span class="nav-num">10</span>SOX e controles de TI</a>
+    <a class="nav-item" href="#s11"><span class="nav-num">11</span>Testes de controles SOX</a>
+    <div class="nav-group-label">Módulo 4 — Aplicação</div>
+    <a class="nav-item" href="#s12"><span class="nav-num">12</span>Estudo de caso</a>
+  </nav>
+  <div class="sidebar-footer">Métricas e Auditoria de Software<br>ADS · Senac Rio · 2025.2</div>
+</aside>
+<div id="main">
+  <div class="topbar">
+    <a class="topbar-back" href="../index.html">← Início</a>
+    <span class="topbar-title">Controles Internos, Conformidade e SOX 🏛️</span>
+    <div class="topbar-tags">
+      <span class="chip">4 módulos</span>
+      <span class="chip">12 seções</span>
+      <span class="chip">COSO · SOX · COBIT</span>
+    </div>
+    <button class="theme-toggle" id="themeToggle">🌙</button>
+  </div>
+  <div class="content">
+    <div class="page-header">
+      <div class="eyebrow">Métricas e Auditoria de Software · Análise e Desenvolvimento de Sistemas</div>
+      <h1>Controles Internos, Conformidade e SOX</h1>
+      <p>Como as organizações estruturam controles para garantir a integridade de suas operações — e como a lei Sarbanes-Oxley tornou esses controles uma obrigação legal auditável.</p>
+      <div class="badge-row">
+        <span class="badge">Controles Internos</span>
+        <span class="badge">COSO</span>
+        <span class="badge">Segregação de Funções</span>
+        <span class="badge">SOX Seção 302</span>
+        <span class="badge">SOX Seção 404</span>
+        <span class="badge">ITGCs</span>
+      </div>
+    </div>
+
+    <!-- 01 -->
+    <div class="section" id="s1">
+      <div class="section-header"><div class="sec-num">01</div><h2>O que são controles internos</h2></div>
+      <p>Controles internos são <strong>políticas, procedimentos, mecanismos e atividades</strong> que uma organização implementa para assegurar que seus objetivos sejam atingidos de maneira confiável, os riscos sejam gerenciados e as leis sejam cumpridas.</p>
+      <p>A definição mais aceita academicamente é a do <strong>COSO</strong>: "Um processo, conduzido pelo conselho de administração, gestão e demais colaboradores, projetado para oferecer segurança razoável quanto ao atingimento de objetivos relacionados a operações, relato e conformidade."</p>
+      <div class="card-grid">
+        <div class="card"><span class="card-icon">🎯</span><h3>Objetivos Operacionais</h3><p>Eficiência e eficácia das operações, proteção de ativos contra perdas e uso não autorizado.</p></div>
+        <div class="card"><span class="card-icon">📊</span><h3>Objetivos de Relato</h3><p>Confiabilidade das informações financeiras e não-financeiras reportadas interna e externamente.</p></div>
+        <div class="card"><span class="card-icon">⚖️</span><h3>Objetivos de Conformidade</h3><p>Aderência às leis, regulamentos e políticas internas aplicáveis à organização.</p></div>
+      </div>
+      <div class="callout info"><span class="callout-icon">ℹ️</span><div>Controles internos oferecem <strong>"segurança razoável"</strong> — não segurança absoluta. Nenhum sistema de controles elimina 100% dos riscos. O objetivo é reduzir a probabilidade e o impacto de falhas a um nível aceitável pelo apetite de risco da organização.</div></div>
+    </div>
+
+    <!-- 02 -->
+    <div class="section" id="s2">
+      <div class="section-header"><div class="sec-num">02</div><h2>Framework COSO</h2></div>
+      <p>O <strong>COSO</strong> (Committee of Sponsoring Organizations of the Treadway Commission) publicou em 1992 — e atualizou em 2013 — o framework de referência para controles internos mais amplamente adotado no mundo. Ele estrutura os controles em <strong>5 componentes interdependentes</strong>:</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Componente</th><th>O que representa</th><th>Exemplo prático</th></tr></thead>
+        <tbody>
+          <tr><td>1. Ambiente de Controle</td><td>Tom definido pela liderança — ética, valores e comprometimento com controles</td><td>Código de ética assinado por todos; comitê de auditoria ativo</td></tr>
+          <tr><td>2. Avaliação de Risco</td><td>Identificação e análise de riscos que ameaçam os objetivos</td><td>Matriz de risco atualizada anualmente; análise de fraudes</td></tr>
+          <tr><td>3. Atividades de Controle</td><td>Políticas e procedimentos que mitigam os riscos identificados</td><td>Aprovação dupla para pagamentos acima de R$10 mil</td></tr>
+          <tr><td>4. Informação e Comunicação</td><td>Fluxo de informações relevantes para suportar os controles</td><td>Relatórios gerenciais mensais; canal de denúncias anônimo</td></tr>
+          <tr><td>5. Atividades de Monitoramento</td><td>Avaliação contínua da eficácia dos controles ao longo do tempo</td><td>Revisões periódicas de auditoria interna; KPIs de controle</td></tr>
+        </tbody>
+      </table></div>
+      <div class="highlight-box">
+        <h4>🧩 O "cubo COSO"</h4>
+        <p>O COSO é frequentemente representado como um cubo tridimensional: os 5 componentes (linhas), os 3 objetivos (colunas) e os níveis organizacionais (profundidade — entidade, divisão, unidade operacional, função). Qualquer avaliação de controles deve considerar as três dimensões simultaneamente.</p>
+      </div>
+    </div>
+
+    <!-- 03 -->
+    <div class="section" id="s3">
+      <div class="section-header"><div class="sec-num">03</div><h2>Tipos de controles</h2></div>
+      <p>Os controles internos podem ser classificados de múltiplas formas. As classificações mais relevantes para auditoria de TI são por <strong>objetivo</strong> e por <strong>natureza de execução</strong>:</p>
+      <h3>Por objetivo (timing em relação ao risco)</h3>
+      <div class="card-grid">
+        <div class="card"><span class="card-icon">🛡️</span><h3>Preventivos</h3><p>Evitam que o erro ou fraude ocorra. Exemplos: aprovação prévia, senhas, criptografia, segregação de funções.</p></div>
+        <div class="card"><span class="card-icon">🔎</span><h3>Detectivos</h3><p>Identificam erros ou fraudes após a ocorrência. Exemplos: conciliação bancária, revisão de logs, auditoria periódica.</p></div>
+        <div class="card"><span class="card-icon">🔧</span><h3>Corretivos</h3><p>Corrigem o problema identificado. Exemplos: backup e restore, plano de continuidade, ação disciplinar pós-fraude.</p></div>
+      </div>
+      <h3>Por natureza de execução</h3>
+      <div class="two-col">
+        <div class="col-card">
+          <div class="col-head a">🤖 Controles Automatizados</div>
+          <div class="col-body"><ul>
+            <li>Executados pelo sistema sem intervenção humana</li>
+            <li>Consistentes — sempre aplicados da mesma forma</li>
+            <li>Ex: validação de campo obrigatório, limite de crédito em ERP</li>
+            <li>Necessitam de 1 teste para eficácia operacional</li>
+            <li>Dependem de controles gerais de TI funcionando</li>
+          </ul></div>
+        </div>
+        <div class="col-card">
+          <div class="col-head b">👤 Controles Manuais</div>
+          <div class="col-body"><ul>
+            <li>Dependem de julgamento e ação humana</li>
+            <li>Sujeitos a erro, omissão e fadiga</li>
+            <li>Ex: revisão gerencial, aprovação de pagamento, reconciliação</li>
+            <li>Necessitam de amostra maior de testes</li>
+            <li>Mais flexíveis para lidar com exceções</li>
+          </ul></div>
+        </div>
+      </div>
+      <div class="callout tip"><span class="callout-icon">✅</span><div>Controles automatizados são mais eficientes e menos custosos de testar — uma vez que o sistema está configurado corretamente, ele aplica o controle 100% das vezes. Auditorias SOX incentivam a migração de controles manuais para automatizados.</div></div>
+    </div>
+
+    <!-- 04 -->
+    <div class="section" id="s4">
+      <div class="section-header"><div class="sec-num">04</div><h2>Segregação de funções (SoD)</h2></div>
+      <p>A <strong>Segregação de Funções</strong> (Segregation of Duties — SoD) é um dos controles internos mais importantes e mais frequentemente violados em ambientes de TI. O princípio é simples: <strong>nenhuma pessoa deve ter controle total sobre um processo crítico do início ao fim</strong>.</p>
+      <p>A lógica por trás é que uma fraude ou erro grave geralmente requer cumplicidade de pelo menos duas pessoas quando as funções estão separadas — o que aumenta dramaticamente o risco para o fraudador e reduz a probabilidade de ocorrência.</p>
+      <h3>As quatro funções a separar</h3>
+      <div class="card-grid">
+        <div class="card"><span class="card-icon">✍️</span><h3>Autorização</h3><p>Aprovar uma transação ou decisão. Quem autoriza não deve executar.</p></div>
+        <div class="card"><span class="card-icon">📦</span><h3>Custódia</h3><p>Ter posse ou acesso a ativos. Quem custodia não deve registrar.</p></div>
+        <div class="card"><span class="card-icon">📝</span><h3>Registro</h3><p>Lançar transações nos sistemas. Quem registra não deve autorizar.</p></div>
+        <div class="card"><span class="card-icon">🔍</span><h3>Reconciliação</h3><p>Comparar registros com realidade. Deve ser feita por quem não executou.</p></div>
+      </div>
+      <div class="callout danger"><span class="callout-icon">🚨</span><div><strong>Conflito clássico em TI:</strong> um desenvolvedor que também tem acesso ao ambiente de produção pode implantar código malicioso sem revisão. A SoD exige que desenvolvimento e implantação em produção sejam funções separadas — é o fundamento da gestão de mudanças segura.</div></div>
+    </div>
+
+    <!-- 05 -->
+    <div class="section" id="s5">
+      <div class="section-header"><div class="sec-num">05</div><h2>O conceito de conformidade (Compliance)</h2></div>
+      <p><strong>Conformidade</strong> é o estado de estar em acordo com as leis, regulamentos, normas e políticas internas aplicáveis à organização. Diferente de qualidade — que é uma escolha estratégica — conformidade frequentemente é uma <strong>obrigação legal</strong> com penalidades severas pelo descumprimento.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Tipo</th><th>Origem</th><th>Consequência do não cumprimento</th></tr></thead>
+        <tbody>
+          <tr><td>Conformidade regulatória</td><td>Leis e órgãos reguladores (CVM, BACEN, ANVISA)</td><td>Multas, suspensão de licença, processo criminal</td></tr>
+          <tr><td>Conformidade contratual</td><td>Contratos com clientes, SLAs, acordos</td><td>Penalidades contratuais, rescisão, indenização</td></tr>
+          <tr><td>Conformidade de normas</td><td>ISO, PCI-DSS, SOC 2, LGPD</td><td>Perda de certificação, danos reputacionais</td></tr>
+          <tr><td>Conformidade interna</td><td>Políticas e procedimentos da empresa</td><td>Ação disciplinar, impacto em governança</td></tr>
+        </tbody>
+      </table></div>
+      <div class="highlight-box">
+        <h4>🇧🇷 LGPD e conformidade de dados</h4>
+        <p>A Lei Geral de Proteção de Dados (Lei 13.709/2018) tornou conformidade de dados pessoais uma obrigação legal no Brasil. Empresas de software que processam dados pessoais precisam demonstrar controles de privacidade auditáveis, com multas de até 2% do faturamento (limitado a R$50 milhões por infração).</p>
+      </div>
+    </div>
+
+    <!-- 06 -->
+    <div class="section" id="s6">
+      <div class="section-header"><div class="sec-num">06</div><h2>Principais frameworks de conformidade</h2></div>
+      <p>Diferentes setores e contextos exigem diferentes frameworks. Conhecer os mais relevantes para TI é essencial para o auditor moderno:</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Framework</th><th>Aplicação</th><th>Foco principal</th></tr></thead>
+        <tbody>
+          <tr><td>SOX</td><td>Empresas abertas nos EUA (e subsidiárias)</td><td>Integridade dos relatórios financeiros</td></tr>
+          <tr><td>COBIT 2019</td><td>Governança de TI corporativa</td><td>Alinhamento TI-negócio e gestão de riscos de TI</td></tr>
+          <tr><td>ISO/IEC 27001</td><td>Gestão da segurança da informação</td><td>Confidencialidade, integridade e disponibilidade</td></tr>
+          <tr><td>PCI-DSS</td><td>Empresas que processam cartões de pagamento</td><td>Proteção de dados de cartão de crédito</td></tr>
+          <tr><td>SOC 2</td><td>Provedores de serviços em nuvem e SaaS</td><td>Segurança, disponibilidade, privacidade e integridade</td></tr>
+          <tr><td>LGPD / GDPR</td><td>Empresas que tratam dados pessoais (BR/EU)</td><td>Proteção de dados e direitos do titular</td></tr>
+          <tr><td>NIST CSF</td><td>Infraestrutura crítica e TI em geral</td><td>Framework de cibersegurança em 5 funções</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+
+    <!-- 07 -->
+    <div class="section" id="s7">
+      <div class="section-header"><div class="sec-num">07</div><h2>Auditoria de conformidade de TI</h2></div>
+      <p>A auditoria de conformidade de TI verifica se os sistemas, processos e controles de tecnologia atendem aos requisitos dos frameworks e regulamentações aplicáveis. Ela responde: <em>"nossos sistemas e processos de TI estão em conformidade com o que é exigido por lei, contrato ou norma?"</em></p>
+      <h3>Controles Gerais de TI (ITGCs)</h3>
+      <p>Os <strong>ITGCs</strong> (IT General Controls) são a base de qualquer auditoria de conformidade de TI. Eles cobrem a infraestrutura que suporta todos os controles de aplicação:</p>
+      <ul>
+        <li><strong>Gestão de Acesso Lógico:</strong> controle de quem acessa o quê — provisionamento, revisão periódica, revogação, contas privilegiadas</li>
+        <li><strong>Gestão de Mudanças:</strong> processo formal de aprovação, teste e implantação de alterações em sistemas produtivos</li>
+        <li><strong>Operações de TI:</strong> monitoramento, gestão de incidentes, backups e procedimentos de job scheduling</li>
+        <li><strong>Continuidade de Negócios / DR:</strong> planos documentados e testados de recuperação de desastres</li>
+        <li><strong>Desenvolvimento de Sistemas (SDLC):</strong> controles no ciclo de vida do software para garantir segurança e integridade</li>
+      </ul>
+      <div class="callout warning"><span class="callout-icon">⚠️</span><div>ITGCs fracos invalidam controles de aplicação. Se o ambiente de TI não é confiável (ex: qualquer desenvolvedor pode alterar código em produção), as validações no sistema de ERP não são confiáveis — independentemente de quão bem desenhadas estejam.</div></div>
+    </div>
+
+    <!-- 08 -->
+    <div class="section" id="s8">
+      <div class="section-header"><div class="sec-num">08</div><h2>Origem e contexto histórico da SOX</h2></div>
+      <p>A Lei Sarbanes-Oxley (SOX) foi promulgada nos EUA em julho de 2002 como resposta direta aos maiores escândalos financeiros corporativos da história americana: <strong>Enron, WorldCom, Tyco e Arthur Andersen</strong>. Nesses casos, executivos manipularam demonstrações financeiras com conivência das auditorias externas, lesando bilhões de investidores.</p>
+      <div class="card-grid">
+        <div class="card"><span class="card-icon">💥</span><h3>Enron (2001)</h3><p>A 7ª maior empresa dos EUA declarou falência após esconder US$1,2 bilhão em dívidas fora do balanço. Auditoria Arthur Andersen destruiu documentos.</p></div>
+        <div class="card"><span class="card-icon">📉</span><h3>WorldCom (2002)</h3><p>US$11 bilhões em despesas fraudulentamente classificadas como investimentos para inflar lucros. Maior fraude contábil da história até então.</p></div>
+        <div class="card"><span class="card-icon">⚖️</span><h3>Resposta: SOX</h3><p>Congresso americano reagiu com a lei mais rigorosa de governança corporativa em 70 anos — criminalizando certificações falsas de executivos.</p></div>
+      </div>
+      <div class="callout purple"><span class="callout-icon">📌</span><div>A SOX se aplica a todas as empresas com ações listadas em bolsas americanas — incluindo <strong>subsidiárias brasileiras de multinacionais americanas</strong> e empresas brasileiras com ADRs na NYSE ou NASDAQ. Não cumprimento pode resultar em até 20 anos de prisão para os executivos signatários.</div></div>
+    </div>
+
+    <!-- 09 -->
+    <div class="section" id="s9">
+      <div class="section-header"><div class="sec-num">09</div><h2>Seções-chave da SOX</h2></div>
+      <p>A SOX tem 11 títulos e dezenas de seções. Para a auditoria, as mais relevantes são:</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Seção</th><th>Tema</th><th>Exigência principal</th></tr></thead>
+        <tbody>
+          <tr><td>§ 302</td><td>Responsabilidade corporativa pelos relatórios financeiros</td><td>CEO e CFO devem assinar pessoalmente certificando a precisão dos relatórios financeiros trimestrais e anuais</td></tr>
+          <tr><td>§ 404</td><td>Avaliação da gestão sobre controles internos</td><td>A gestão deve avaliar anualmente a eficácia dos controles internos sobre relatórios financeiros — e o auditor externo deve atestar essa avaliação</td></tr>
+          <tr><td>§ 906</td><td>Certificações criminais</td><td>Certificar relatórios falsos conscientemente: pena de até 10 anos. Intencionalmente: até 20 anos de prisão.</td></tr>
+          <tr><td>§ 301</td><td>Comitê de auditoria</td><td>Comitê de auditoria deve ser independente e ter pelo menos um especialista financeiro</td></tr>
+          <tr><td>§ 802</td><td>Penalidades por destruição de registros</td><td>Destruir ou falsificar documentos relevantes para investigação federal: até 20 anos de prisão</td></tr>
+        </tbody>
+      </table></div>
+      <div class="highlight-box">
+        <h4>⭐ Seção 404 — O coração da SOX</h4>
+        <p>A Seção 404 é a mais impactante para TI. Ela exige que a gestão <em>avalie</em> os controles internos e que o auditor externo <em>ateste</em> essa avaliação. Na prática, isso cria uma enorme demanda por <strong>documentação, testes e evidências de controles</strong> — incluindo todos os controles de TI que suportam os relatórios financeiros.</p>
+      </div>
+    </div>
+
+    <!-- 10 -->
+    <div class="section" id="s10">
+      <div class="section-header"><div class="sec-num">10</div><h2>SOX e controles de TI</h2></div>
+      <p>A SOX não é explicitamente uma lei de TI — mas TI se tornou central para sua conformidade. Isso porque praticamente todos os processos financeiros relevantes são executados por sistemas de informação. Se os sistemas não são confiáveis, as demonstrações financeiras não são confiáveis.</p>
+      <h3>Impacto da SOX nas equipes de TI</h3>
+      <ul>
+        <li><strong>Gestão de acesso:</strong> logs detalhados de quem acessou dados financeiros, com revisão periódica obrigatória</li>
+        <li><strong>Gestão de mudanças:</strong> nenhuma alteração em sistemas financeiros sem aprovação formal, testes documentados e trilha auditável</li>
+        <li><strong>Segregação de ambientes:</strong> ambientes de desenvolvimento, homologação e produção devem ser rigidamente separados</li>
+        <li><strong>Controle de dados:</strong> integridade dos dados dos sistemas financeiros deve ser verificável e protegida</li>
+        <li><strong>Retenção de logs:</strong> logs de sistemas relevantes para relatórios financeiros devem ser retidos por no mínimo 7 anos</li>
+      </ul>
+      <div class="callout danger"><span class="callout-icon">🚨</span><div>Uma fraqueza em ITGC (ex: ausência de gestão de mudanças formal) pode se propagar para uma <strong>deficiência material</strong> no relatório SOX — o que obriga divulgação pública, afeta o preço das ações e pode gerar investigação do órgão regulador (SEC).</div></div>
+    </div>
+
+    <!-- 11 -->
+    <div class="section" id="s11">
+      <div class="section-header"><div class="sec-num">11</div><h2>Testes de controles SOX na prática</h2></div>
+      <p>A metodologia de testes SOX segue um ciclo anual com quatro fases:</p>
+      <ol class="step-list">
+        <li><span class="step-badge">1</span><span><strong>Escoping (Definição do Escopo):</strong> identificar processos e sistemas "in-scope" — aqueles que têm impacto relevante nos relatórios financeiros. Processos imateriais ficam fora do escopo.</span></li>
+        <li><span class="step-badge">2</span><span><strong>Risk & Control Matrix (RCM):</strong> documentar, para cada processo, os riscos identificados e os controles que mitigam cada risco. Este documento é o coração da auditoria SOX.</span></li>
+        <li><span class="step-badge">3</span><span><strong>Walkthrough:</strong> rastrear uma transação do início ao fim para entender o design do controle e confirmar que a RCM reflete a realidade.</span></li>
+        <li><span class="step-badge">4</span><span><strong>Teste de eficácia operacional:</strong> selecionar amostra de transações e verificar se o controle foi aplicado consistentemente durante todo o ano. Fraquezas são classificadas como Controle Deficiente, Deficiência Significativa ou Deficiência Material.</span></li>
+      </ol>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Classificação</th><th>Definição</th><th>Consequência</th></tr></thead>
+        <tbody>
+          <tr><td>Controle Deficiente</td><td>O controle existe mas não opera perfeitamente</td><td>Ação corretiva interna, sem divulgação obrigatória</td></tr>
+          <tr><td>Deficiência Significativa</td><td>Falha importante, mas sem impacto material nos relatórios</td><td>Reportada ao Comitê de Auditoria</td></tr>
+          <tr><td>Deficiência Material</td><td>Probabilidade razoável de erro material nos relatórios financeiros</td><td>Divulgação pública obrigatória no relatório anual (20-F/10-K)</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+
+    <!-- 12 -->
+    <div class="section" id="s12">
+      <div class="section-header"><div class="sec-num">12</div><h2>Estudo de caso — Falha de SoD em sistema ERP</h2></div>
+      <p><strong>Cenário:</strong> durante a auditoria SOX de uma filial brasileira de empresa americana, o auditor identifica que o mesmo usuário de TI no ERP tem acesso para criar fornecedores <em>e</em> para aprovar pagamentos a fornecedores.</p>
+      <ol class="step-list">
+        <li><span class="step-badge">1</span><span><strong>Identificação:</strong> relatório de Revisão de Acesso (extrato do ERP) mostra que o usuário "admin_financeiro" tem os perfis "Cadastro de Fornecedores" e "Aprovação de Pagamentos" ativos simultaneamente.</span></li>
+        <li><span class="step-badge">2</span><span><strong>Risco:</strong> o mesmo usuário pode criar um fornecedor fictício e aprovar um pagamento para ele — fraude de pagamento fantasma, sem necessidade de cumplicidade.</span></li>
+        <li><span class="step-badge">3</span><span><strong>Teste de extensão:</strong> o auditor verifica todos os pagamentos aprovados por este usuário no período e cruza com a lista de fornecedores criados por ele. Encontra 2 fornecedores criados e pagamentos aprovados pelo mesmo usuário para ambos.</span></li>
+        <li><span class="step-badge">4</span><span><strong>Classificação:</strong> o achado é classificado como <strong>Deficiência Significativa</strong> (neste caso) pois os fornecedores são empresas reais e os pagamentos são legítimos — mas o conflito de acesso representa risco inaceitável.</span></li>
+        <li><span class="step-badge">5</span><span><strong>Remediação:</strong> remoção imediata do perfil de aprovação do usuário, implementação de revisão semestral de SoD e implementação de alerta automático para conflitos de perfil no ERP.</span></li>
+      </ol>
+      <div class="callout tip"><span class="callout-icon">✅</span><div><strong>Lição:</strong> conflitos de SoD em sistemas de TI são frequentemente invisíveis para a gestão porque os sistemas permitem acumulação de perfis por conveniência operacional. A auditoria SOX os torna visíveis — e exige correção antes que se tornem fraudes.</div></div>
+    </div>
+
+  </div>
+</div>
+<script>
+window.addEventListener('scroll',()=>{const p=(window.scrollY/(document.body.scrollHeight-window.innerHeight))*100;document.getElementById('progress').style.width=p+'%'});
+const navLinks=document.querySelectorAll('.nav-item[href]');
+const sections=document.querySelectorAll('.section[id]');
+const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){navLinks.forEach(a=>a.classList.remove('active'));const a=document.querySelector(`.nav-item[href="#${e.target.id}"]`);if(a)a.classList.add('active')}})},{rootMargin:'-20% 0px -70% 0px'});
+sections.forEach(s=>obs.observe(s));
+const themeToggle=document.getElementById('themeToggle');
+function applyTheme(dark){document.body.classList.toggle('dark',dark);themeToggle.textContent=dark?'☀️':'🌙'}
+applyTheme(localStorage.getItem('theme')==='dark');
+themeToggle.addEventListener('click',()=>{const d=document.body.classList.contains('dark');localStorage.setItem('theme',d?'light':'dark');applyTheme(!d)});
+const st=document.getElementById('sidebar-toggle'),sb=document.getElementById('sidebar'),mn=document.getElementById('main');
+function applySidebar(h){sb.classList.toggle('hidden',h);mn.classList.toggle('expanded',h);st.classList.toggle('hidden',h);st.textContent=h?'›':'‹'}
+st.addEventListener('click',()=>{const h=sb.classList.contains('hidden');localStorage.setItem('sidebar-hidden',!h);applySidebar(!h)});
+applySidebar(localStorage.getItem('sidebar-hidden')==='true');
+document.querySelectorAll('pre').forEach(pre=>{const btn=document.createElement('button');btn.textContent='Copiar';btn.style.cssText='position:absolute;top:8px;right:8px;padding:3px 10px;font-size:11px;border-radius:5px;border:1px solid var(--ore-border);background:var(--ore-soft);color:var(--ore-deep);cursor:pointer';pre.style.position='relative';pre.appendChild(btn);btn.addEventListener('click',()=>{navigator.clipboard.writeText(pre.textContent.replace('Copiar','').trim());btn.textContent='Copiado!';setTimeout(()=>btn.textContent='Copiar',2000)})});
+</script>
+</body>
+</html>

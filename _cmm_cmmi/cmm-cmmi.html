@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CMM, CMMI e Maturidade de Processos · ADS · Senac Rio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,800;1,9..144,300;1,9..144,700&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{--ore:#F07830;--ore-deep:#D45E18;--ore-mid:#F59050;--ore-glow:#FDB97A;--ore-soft:#FFF5EE;--ore-muted:#FDDCC0;--ore-border:#FAC89A;--bg:#FFFBF7;--surface:#FFFFFF;--surface2:#FFF8F2;--text:#2C1A0A;--text2:#6B3E1E;--muted:#A06840;--border:#F0E0D0;--green:#16A34A;--green-soft:#F0FDF4;--blue:#1D6FA4;--blue-soft:#EFF6FF;--amber:#D97706;--amber-soft:#FFFBEB;--red:#DC2626;--red-soft:#FEF2F2;--purple:#7C3AED;--purple-soft:#F5F3FF;
+--lv1:#94A3B8;--lv2:#60A5FA;--lv3:#34D399;--lv4:#FBBF24;--lv5:#EF4444;
+--radius:12px;--shadow:0 2px 16px rgba(200,100,30,.07);--sidebar-w:268px;--font:'DM Sans',system-ui,sans-serif;--mono:'DM Mono',monospace}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth;font-size:15px}body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.75}
+#progress{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--ore),var(--ore-glow));z-index:100;width:0%;transition:width .1s}
+#sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;background:var(--bg);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;z-index:50;transition:transform .25s ease}#sidebar.hidden{transform:translateX(-100%)}
+.sidebar-logo{padding:24px 24px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}.logo-icon{width:34px;height:34px;background:var(--ore);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}.logo-text{font-size:.92rem;font-weight:700;color:var(--ore-deep);line-height:1.2}.logo-sub{font-size:.72rem;color:var(--muted)}
+.sidebar-nav{flex:1;overflow-y:auto;padding:16px 0}.nav-group-label{padding:8px 24px 4px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}.nav-item{display:flex;align-items:center;gap:10px;padding:8px 24px;font-size:.82rem;color:var(--muted);text-decoration:none;border-left:2px solid transparent;transition:all .15s}.nav-item:hover{background:var(--ore-soft);color:var(--ore-deep);border-left-color:var(--ore-border)}.nav-item.active{background:var(--ore-soft);color:var(--ore-deep);font-weight:600;border-left-color:var(--ore)}.nav-num{font-family:var(--mono);font-size:.68rem;color:var(--muted);min-width:22px}
+.sidebar-footer{padding:16px 24px;border-top:1px solid var(--border);font-size:.75rem;color:var(--muted)}
+#sidebar-toggle{position:fixed;top:50%;left:var(--sidebar-w);transform:translateY(-50%) translateX(-50%);z-index:60;width:20px;height:48px;background:var(--ore);border:none;border-radius:0 6px 6px 0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:left .25s ease,background .15s;color:#fff;font-size:.65rem}#sidebar-toggle:hover{background:var(--ore-deep)}#sidebar-toggle.hidden{left:0;transform:translateY(-50%) translateX(0)}
+#main{margin-left:var(--sidebar-w);min-height:100vh;transition:margin-left .25s ease}#main.expanded{margin-left:0}
+.topbar{position:sticky;top:0;z-index:40;background:rgba(255,251,247,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px 48px;display:flex;align-items:center;justify-content:space-between;gap:16px}.topbar-back{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;font-weight:600;color:var(--ore-deep);background:var(--ore-soft);border:1px solid var(--ore-muted);padding:5px 12px;border-radius:7px;text-decoration:none;transition:background .15s;flex-shrink:0}.topbar-back:hover{background:var(--ore-muted)}.topbar-title{font-size:.88rem;font-weight:600;color:var(--text2)}.topbar-tags{display:flex;gap:8px;flex-wrap:wrap}.chip{font-size:.72rem;font-weight:600;padding:3px 10px;border-radius:20px;background:var(--ore-muted);color:var(--ore-deep);border:1px solid var(--ore-border);font-family:var(--mono)}.theme-toggle{width:32px;height:32px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,border-color .15s;flex-shrink:0;line-height:1}.theme-toggle:hover{background:var(--ore-muted);border-color:var(--ore-border)}
+.content{max-width:820px;margin:0 auto;padding:56px 48px 120px}
+.page-header{margin-bottom:48px;padding-bottom:36px;border-bottom:1px solid var(--border)}.page-header .eyebrow{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ore);margin-bottom:12px}.page-header h1{font-family:'Fraunces',serif;font-size:2.2rem;font-weight:700;letter-spacing:-.025em;color:var(--text);line-height:1.2;margin-bottom:14px}.page-header p{font-size:1rem;color:var(--muted);max-width:580px;margin-bottom:24px;line-height:1.7}.badge-row{display:flex;gap:8px;flex-wrap:wrap}.badge{font-size:.72rem;font-weight:600;padding:4px 12px;border-radius:6px;background:var(--ore-soft);border:1px solid var(--ore-border);color:var(--ore-deep);font-family:var(--mono)}
+.section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:36px 40px;margin-bottom:24px;scroll-margin-top:80px;box-shadow:var(--shadow)}.section-header{display:flex;align-items:center;gap:14px;margin-bottom:26px;padding-bottom:18px;border-bottom:2px solid var(--border)}.sec-num{width:34px;height:34px;min-width:34px;background:var(--ore-deep);color:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;font-weight:500}.section h2{font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:var(--ore-deep);letter-spacing:-.01em}
+h3{font-size:15px;font-weight:700;color:var(--ore-deep);margin:26px 0 11px;padding-left:12px;border-left:3px solid var(--ore)}p{margin-bottom:13px;color:var(--text2);font-size:14.5px}strong{color:var(--text)}ul,ol{padding-left:20px;margin-bottom:13px}li{margin-bottom:6px;color:var(--text2);font-size:14px}
+.table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);margin:16px 0}table{border-collapse:collapse;width:100%;font-size:13.5px}thead th{background:var(--ore-deep);color:#fff;padding:10px 15px;text-align:left;font-weight:600;font-size:12px;letter-spacing:.03em}tbody td{padding:9px 15px;border-bottom:1px solid var(--border);color:var(--text2);line-height:1.55}tbody tr:last-child td{border-bottom:none}tbody tr:hover td{background:var(--ore-soft)}tbody td:first-child{font-weight:600;color:var(--ore-deep)}
+.callout{display:flex;gap:12px;padding:13px 17px;border-radius:var(--radius);margin:14px 0;font-size:13.5px;line-height:1.6}.callout-icon{font-size:17px;flex-shrink:0;margin-top:1px}.callout.info{background:var(--blue-soft);border-left:4px solid var(--blue);color:#1e3a5f}.callout.tip{background:var(--green-soft);border-left:4px solid var(--green);color:#14532d}.callout.warning{background:var(--amber-soft);border-left:4px solid var(--amber);color:#78350f}.callout.danger{background:var(--red-soft);border-left:4px solid var(--red);color:#7f1d1d}.callout.purple{background:var(--purple-soft);border-left:4px solid var(--purple);color:#4c1d95}
+.highlight-box{background:var(--ore-soft);border:1px solid var(--ore-border);border-left:4px solid var(--ore);border-radius:var(--radius);padding:18px 22px;margin:16px 0}.highlight-box h4{font-family:'Fraunces',serif;font-size:13.5px;font-weight:700;color:var(--ore-deep);margin-bottom:7px}.highlight-box p{font-size:13.5px;margin:0;color:var(--text2)}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:13px;margin:16px 0}.card{background:var(--ore-soft);border:1px solid var(--border);border-radius:var(--radius);padding:17px 19px}.card-icon{font-size:21px;margin-bottom:8px;display:block}.card h3{font-size:13px;font-weight:700;color:var(--ore-deep);margin:0 0 5px;padding:0;border:none;font-family:var(--font)}.card p{font-size:13px;color:var(--muted);margin:0;line-height:1.55}
+.step-list{list-style:none;padding:0;margin:14px 0}.step-list li{display:flex;gap:13px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--border)}.step-list li:last-child{border-bottom:none}.step-badge{min-width:27px;height:27px;background:var(--ore);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:2px}.step-list li span{font-size:14px;color:var(--text2)}
+.nivel-list{display:flex;flex-direction:column;gap:8px;margin:16px 0}.nivel-item{display:flex;align-items:stretch;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}.nivel-badge{width:52px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:18px;font-weight:700;color:#fff;flex-shrink:0}.nivel-body{padding:12px 16px;flex:1;background:var(--surface)}.nivel-body strong{display:block;font-size:13.5px;color:var(--text);margin-bottom:3px}.nivel-body span{font-size:13px;color:var(--muted)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}.col-card{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}.col-head{padding:12px 18px;font-weight:700;font-size:13.5px;color:#fff}.col-head.a{background:var(--ore-deep)}.col-head.b{background:var(--blue)}.col-head.c{background:var(--green)}.col-body{padding:16px 18px;background:var(--surface)}.col-body ul{list-style:none;padding:0}.col-body li{font-size:13px;color:var(--text2);padding:5px 0;border-bottom:1px solid var(--border);display:flex;gap:8px}.col-body li:last-child{border-bottom:none}.col-body li::before{content:'→';color:var(--ore);font-weight:700;flex-shrink:0}
+.pill-row{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0}.pill{padding:3px 11px;border-radius:20px;font-size:12px;font-weight:600}.pill.ore{background:var(--ore-soft);color:var(--ore-deep);border:1px solid var(--ore-border)}.pill.blue{background:#dbeafe;color:#1e40af;border:1px solid #93c5fd}.pill.green{background:#dcfce7;color:#166534;border:1px solid #86efac}.pill.amber{background:#fef3c7;color:#92400e;border:1px solid #fcd34d}.pill.red{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5}.pill.purple{background:#f3e8ff;color:#6b21a8;border:1px solid #d8b4fe}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--ore-border);border-radius:3px}::-webkit-scrollbar-thumb:hover{background:var(--ore-mid)}
+@media(max-width:860px){#sidebar,#sidebar-toggle{display:none}#main{margin-left:0}.content{padding:32px 20px 60px}.topbar{padding:12px 20px}.two-col{grid-template-columns:1fr}}
+body.dark{--bg:#1a0f07;--surface:#201208;--surface2:#2a1a0c;--text:#FFF5EE;--text2:#FDDCC0;--muted:#B07840;--border:#3d2010}
+body.dark #sidebar{background:#140a03;border-color:var(--border)}body.dark .topbar{background:rgba(20,10,3,.93)}body.dark .sidebar-footer,body.dark .sidebar-logo{border-color:var(--border)}body.dark .section{background:var(--surface)}body.dark .highlight-box,body.dark .card,body.dark .col-body,body.dark .nivel-body{background:#2a1a0c}body.dark tbody td{color:var(--text2)}body.dark tbody tr:hover td{background:#2a1a0c}
+</style>
+<script>if(localStorage.getItem('theme')==='dark')document.body.classList.add('dark');</script>
+</head>
+<body>
+<div id="progress"></div>
+<button id="sidebar-toggle">‹</button>
+<aside id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">📐</div>
+    <div><div class="logo-text">CMM e CMMI</div><div class="logo-sub">ADS · Senac Rio</div></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-group-label">Módulo 1 — CMM</div>
+    <a class="nav-item" href="#s1"><span class="nav-num">01</span>Origem e contexto histórico</a>
+    <a class="nav-item" href="#s2"><span class="nav-num">02</span>Os 5 níveis do CMM</a>
+    <a class="nav-item" href="#s3"><span class="nav-num">03</span>KPAs — Áreas-chave de processo</a>
+    <div class="nav-group-label">Módulo 2 — CMMI</div>
+    <a class="nav-item" href="#s4"><span class="nav-num">04</span>CMM para CMMI — a evolução</a>
+    <a class="nav-item" href="#s5"><span class="nav-num">05</span>Constelações do CMMI</a>
+    <a class="nav-item" href="#s6"><span class="nav-num">06</span>Representações: Staged vs. Continuous</a>
+    <a class="nav-item" href="#s7"><span class="nav-num">07</span>Áreas de processo do CMMI-DEV</a>
+    <a class="nav-item" href="#s8"><span class="nav-num">08</span>Metas e práticas no CMMI</a>
+    <div class="nav-group-label">Módulo 3 — Avaliação</div>
+    <a class="nav-item" href="#s9"><span class="nav-num">09</span>Método SCAMPI</a>
+    <a class="nav-item" href="#s10"><span class="nav-num">10</span>CMMI vs. MPS.Br vs. SPICE</a>
+    <div class="nav-group-label">Módulo 4 — Aplicação</div>
+    <a class="nav-item" href="#s11"><span class="nav-num">11</span>ROI de maturidade de processos</a>
+    <a class="nav-item" href="#s12"><span class="nav-num">12</span>Estudo de caso</a>
+  </nav>
+  <div class="sidebar-footer">Métricas e Auditoria de Software<br>ADS · Senac Rio · 2025.2</div>
+</aside>
+<div id="main">
+  <div class="topbar">
+    <a class="topbar-back" href="../index.html">← Início</a>
+    <span class="topbar-title">CMM, CMMI e Maturidade de Processos 📐</span>
+    <div class="topbar-tags">
+      <span class="chip">4 módulos</span>
+      <span class="chip">12 seções</span>
+      <span class="chip">CMM · CMMI · SCAMPI</span>
+    </div>
+    <button class="theme-toggle" id="themeToggle">🌙</button>
+  </div>
+  <div class="content">
+    <div class="page-header">
+      <div class="eyebrow">Métricas e Auditoria de Software · Análise e Desenvolvimento de Sistemas</div>
+      <h1>CMM, CMMI e Maturidade de Processos</h1>
+      <p>A jornada do caos à otimização: como o CMM nasceu para resolver a crise do software dos anos 1980 e como o CMMI expandiu esse modelo para toda a organização de desenvolvimento.</p>
+      <div class="badge-row">
+        <span class="badge">CMM</span>
+        <span class="badge">CMMI-DEV</span>
+        <span class="badge">CMMI-SVC</span>
+        <span class="badge">5 Níveis</span>
+        <span class="badge">SCAMPI</span>
+        <span class="badge">Áreas de Processo</span>
+      </div>
+    </div>
+
+    <!-- 01 -->
+    <div class="section" id="s1">
+      <div class="section-header"><div class="sec-num">01</div><h2>Origem e contexto histórico</h2></div>
+      <p>Na década de 1980, o Departamento de Defesa dos EUA (DoD) enfrentava uma crise sistêmica em seus projetos de software: contratos estouravam prazos e orçamentos, sistemas entregues eram cheios de defeitos e os contratados de TI eram incapazes de prever com confiança quando e como entregariam. O problema não era tecnológico — era de <strong>processo</strong>.</p>
+      <p>Em 1984, o DoD fundou o <strong>Software Engineering Institute (SEI)</strong> na Carnegie Mellon University com uma missão clara: criar uma forma de avaliar a capacidade dos fornecedores de software antes de assinar contratos bilionários. Em 1986, Watts Humphrey liderou o desenvolvimento do primeiro modelo de maturidade. Em <strong>1991</strong>, foi publicado formalmente o <strong>CMM — Capability Maturity Model for Software</strong>.</p>
+      <div class="highlight-box">
+        <h4>🎯 A pergunta original do SEI</h4>
+        <p>"Como podemos saber, antes de assinar o contrato, se um fornecedor de software tem capacidade real de entregar o que promete?" A resposta foi criar um modelo que avaliasse a <em>maturidade dos processos</em> — não a tecnologia ou o currículo dos profissionais, mas a consistência e previsibilidade de como o trabalho era feito.</p>
+      </div>
+    </div>
+
+    <!-- 02 -->
+    <div class="section" id="s2">
+      <div class="section-header"><div class="sec-num">02</div><h2>Os 5 níveis do CMM</h2></div>
+      <p>O CMM original define <strong>5 níveis de maturidade</strong> para organizações de software. A metáfora central é uma <em>escada</em>: cada degrau representa um conjunto de processos que devem estar sistematicamente implantados antes de subir ao próximo nível. Não é possível pular degraus.</p>
+      <div class="nivel-list">
+        <div class="nivel-item">
+          <div class="nivel-badge" style="background:var(--lv1)">1</div>
+          <div class="nivel-body">
+            <strong>Nível 1 — Inicial (Caótico)</strong>
+            <span>Processos ad hoc e imprevisíveis. O sucesso depende de heróis individuais. Quando o "herói" sai, o projeto fracassa. Sem gerenciamento formal de projetos.</span>
+          </div>
+        </div>
+        <div class="nivel-item">
+          <div class="nivel-badge" style="background:var(--lv2)">2</div>
+          <div class="nivel-body">
+            <strong>Nível 2 — Repetível</strong>
+            <span>Processos básicos de gerência de projetos estabelecidos. A organização consegue repetir sucessos anteriores em projetos similares. Planejamento, rastreamento e gestão de requisitos formalizados.</span>
+          </div>
+        </div>
+        <div class="nivel-item">
+          <div class="nivel-badge" style="background:var(--lv3)">3</div>
+          <div class="nivel-body">
+            <strong>Nível 3 — Definido</strong>
+            <span>Processos de software e gerência documentados, padronizados e integrados em um processo padrão da organização. Todos os projetos usam versões adaptadas desse processo padrão.</span>
+          </div>
+        </div>
+        <div class="nivel-item">
+          <div class="nivel-badge" style="background:var(--lv4)">4</div>
+          <div class="nivel-body">
+            <strong>Nível 4 — Gerenciado ⭐</strong>
+            <span>Métricas detalhadas de processo e qualidade do produto são coletadas. O desempenho do processo é compreendido e controlado quantitativamente. Variações são detectadas e analisadas.</span>
+          </div>
+        </div>
+        <div class="nivel-item">
+          <div class="nivel-badge" style="background:var(--lv5)">5</div>
+          <div class="nivel-body">
+            <strong>Nível 5 — Otimizado</strong>
+            <span>Melhoria contínua do processo habilitada por feedback quantitativo. Inovações e novas tecnologias são avaliadas e implantadas de forma controlada e sistemática.</span>
+          </div>
+        </div>
+      </div>
+      <div class="callout info"><span class="callout-icon">ℹ️</span><div>Estudos do SEI mostraram que organizações no <strong>Nível 1</strong> gastavam até <strong>55% do orçamento de desenvolvimento em retrabalho</strong>. No Nível 5, esse índice caia para menos de 5%. A maturidade tem ROI mensurável.</div></div>
+    </div>
+
+    <!-- 03 -->
+    <div class="section" id="s3">
+      <div class="section-header"><div class="sec-num">03</div><h2>KPAs — Áreas-Chave de Processo</h2></div>
+      <p>Para cada nível do CMM (2 a 5), existem <strong>Áreas-Chave de Processo (KPAs — Key Process Areas)</strong> que devem ser satisfeitas. Cada KPA define <em>metas</em> que indicam o que deve ser feito, sem prescrever exatamente como.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Nível</th><th>KPAs (Áreas-Chave de Processo)</th></tr></thead>
+        <tbody>
+          <tr><td>Nível 2</td><td>Gestão de Requisitos · Planejamento de Projetos · Rastreamento de Projetos · Gestão de Subcontratos · Garantia de Qualidade · Gestão de Configuração</td></tr>
+          <tr><td>Nível 3</td><td>Foco no Processo Organizacional · Definição do Processo Organizacional · Treinamento · Gestão Integrada de Projetos · Engenharia de Software · Coordenação Intergrupos · Revisões Por Pares</td></tr>
+          <tr><td>Nível 4</td><td>Gestão Quantitativa de Processos · Gestão da Qualidade do Software</td></tr>
+          <tr><td>Nível 5</td><td>Prevenção de Defeitos · Gestão de Mudança de Tecnologia · Gestão de Mudança de Processo</td></tr>
+        </tbody>
+      </table></div>
+      <div class="callout warning"><span class="callout-icon">⚠️</span><div>As KPAs são cumulativas. Para ser certificado no Nível 3, a organização deve satisfazer <em>todas</em> as KPAs dos Níveis 2 e 3. Uma KPA não satisfeita no nível anterior bloqueia toda a escada acima.</div></div>
+    </div>
+
+    <!-- 04 -->
+    <div class="section" id="s4">
+      <div class="section-header"><div class="sec-num">04</div><h2>Do CMM para o CMMI — a evolução</h2></div>
+      <p>Ao longo dos anos 1990, o CMM original foi tão bem-sucedido que o SEI criou variantes para outras áreas: CMM para Engenharia de Sistemas, CMM para Aquisição, CMM para Recursos Humanos, entre outros. O problema: uma organização podia estar sendo avaliada simultaneamente por <strong>múltiplos CMMs diferentes e incompatíveis</strong>.</p>
+      <p>Em 2002, o SEI lançou o <strong>CMMI — Capability Maturity Model Integration</strong>, consolidando os múltiplos modelos em um framework unificado, mais abrangente e com maior cobertura do ciclo de vida do produto.</p>
+      <div class="two-col">
+        <div class="col-card">
+          <div class="col-head a">CMM (1991–2006)</div>
+          <div class="col-body"><ul>
+            <li>Focado exclusivamente em software</li>
+            <li>18 KPAs no total</li>
+            <li>Apenas representação por estágios (staged)</li>
+            <li>Múltiplos modelos fragmentados por domínio</li>
+            <li>Gerido pelo SEI / Carnegie Mellon</li>
+          </ul></div>
+        </div>
+        <div class="col-card">
+          <div class="col-head b">CMMI (2002–presente)</div>
+          <div class="col-body"><ul>
+            <li>Cobre software, sistemas, serviços e aquisição</li>
+            <li>22 áreas de processo (CMMI-DEV v1.3)</li>
+            <li>Dois tipos de representação: staged e continuous</li>
+            <li>Framework unificado e integrado</li>
+            <li>Gerido pelo CMMI Institute (desde 2012)</li>
+          </ul></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 05 -->
+    <div class="section" id="s5">
+      <div class="section-header"><div class="sec-num">05</div><h2>Constelações do CMMI</h2></div>
+      <p>O CMMI é organizado em <strong>constelações</strong> — conjuntos de áreas de processo voltados para domínios específicos:</p>
+      <div class="card-grid">
+        <div class="card"><span class="card-icon">💻</span><h3>CMMI-DEV</h3><p><strong>Development</strong> — para organizações que desenvolvem produtos e sistemas de software. A constelação mais usada e avaliada no mundo.</p></div>
+        <div class="card"><span class="card-icon">🛎️</span><h3>CMMI-SVC</h3><p><strong>Services</strong> — para organizações que entregam serviços (helpdesk, operações de TI, suporte). Inclui práticas de gestão de serviços e continuidade.</p></div>
+        <div class="card"><span class="card-icon">🛒</span><h3>CMMI-ACQ</h3><p><strong>Acquisition</strong> — para organizações que adquirem produtos ou serviços de terceiros. Foco em gestão de fornecedores e contratos.</p></div>
+      </div>
+      <div class="callout info"><span class="callout-icon">ℹ️</span><div>As constelações compartilham um conjunto de <strong>Áreas de Processo de Suporte e Processo</strong> (como Gestão de Configuração, Garantia de Qualidade e Medição) — o "núcleo" do CMMI — e acrescentam áreas específicas para cada domínio.</div></div>
+    </div>
+
+    <!-- 06 -->
+    <div class="section" id="s6">
+      <div class="section-header"><div class="sec-num">06</div><h2>Representações: Staged vs. Continuous</h2></div>
+      <p>Uma diferença fundamental entre o CMM e o CMMI é que este último oferece <strong>duas representações</strong> para avaliação e implementação:</p>
+      <div class="two-col">
+        <div class="col-card">
+          <div class="col-head a">🪜 Staged (Por Estágios)</div>
+          <div class="col-body"><ul>
+            <li>Avalia a organização como um todo</li>
+            <li>Resultado: nível único (1 a 5)</li>
+            <li>Caminho predefinido de melhoria</li>
+            <li>Equivalente ao CMM original</li>
+            <li>Mais fácil de comunicar externamente</li>
+            <li>Usado para benchmarking e contratos</li>
+          </ul></div>
+        </div>
+        <div class="col-card">
+          <div class="col-head b">📊 Continuous (Contínua)</div>
+          <div class="col-body"><ul>
+            <li>Avalia cada área de processo individualmente</li>
+            <li>Resultado: perfil de capacidade (0–3 por PA)</li>
+            <li>Flexibilidade para priorizar por negócio</li>
+            <li>Alinhada ao SPICE / ISO 15504</li>
+            <li>Mais granular e adaptável</li>
+            <li>Usada para melhoria interna focada</li>
+          </ul></div>
+        </div>
+      </div>
+      <div class="highlight-box">
+        <h4>📌 Níveis de capacidade na representação Continuous</h4>
+        <p>Na representação contínua, cada PA pode ter nível 0 (incompleto), 1 (executado), 2 (gerenciado) ou 3 (definido). Isso permite que uma empresa com excelência em Testes (nível 3) e fraqueza em Gerência de Projetos (nível 1) tenha um <em>perfil de capacidade</em> que reflete essa realidade.</p>
+      </div>
+    </div>
+
+    <!-- 07 -->
+    <div class="section" id="s7">
+      <div class="section-header"><div class="sec-num">07</div><h2>Áreas de processo do CMMI-DEV</h2></div>
+      <p>O CMMI-DEV v1.3 tem <strong>22 Áreas de Processo (PAs)</strong>, agrupadas em 4 categorias:</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Categoria</th><th>Área de Processo</th><th>Nível Staged</th></tr></thead>
+        <tbody>
+          <tr><td>Gerência de Projetos</td><td>Project Planning (PP) · Project Monitoring &amp; Control (PMC) · Risk Management (RSKM) · Integrated Project Management (IPM) · Quantitative Project Management (QPM)</td><td>2, 2, 3, 3, 4</td></tr>
+          <tr><td>Engenharia</td><td>Requirements Management (REQM) · Requirements Development (RD) · Technical Solution (TS) · Product Integration (PI) · Verification (VER) · Validation (VAL)</td><td>2, 3, 3, 3, 3, 3</td></tr>
+          <tr><td>Suporte</td><td>Configuration Management (CM) · Process &amp; Product Quality Assurance (PPQA) · Measurement &amp; Analysis (MA) · Causal Analysis &amp; Resolution (CAR) · Decision Analysis &amp; Resolution (DAR)</td><td>2, 2, 2, 5, 3</td></tr>
+          <tr><td>Processo Organizacional</td><td>Organizational Process Focus (OPF) · Organizational Process Definition (OPD) · Organizational Training (OT) · Organizational Process Performance (OPP) · Organizational Innovation &amp; Deployment (OID)</td><td>3, 3, 3, 4, 5</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+
+    <!-- 08 -->
+    <div class="section" id="s8">
+      <div class="section-header"><div class="sec-num">08</div><h2>Metas e práticas no CMMI</h2></div>
+      <p>Cada Área de Processo do CMMI é estruturada em <strong>Metas Específicas (SGs)</strong> e <strong>Práticas Específicas (SPs)</strong> que demonstram como atingi-las. Existem também <strong>Metas Genéricas (GGs)</strong> que se aplicam a todas as PAs e definem o grau de institucionalização.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Componente</th><th>O que é</th><th>Exemplo (PA: REQM)</th></tr></thead>
+        <tbody>
+          <tr><td>Meta Específica (SG)</td><td>O que a PA deve atingir</td><td>SG 1: Gerenciar Requisitos</td></tr>
+          <tr><td>Prática Específica (SP)</td><td>Como atingir a meta</td><td>SP 1.1: Entender Requisitos<br>SP 1.2: Obter Comprometimento<br>SP 1.3: Gerenciar Mudanças<br>SP 1.4: Manter Rastreabilidade</td></tr>
+          <tr><td>Meta Genérica (GG)</td><td>Grau de institucionalização da PA</td><td>GG 2: Institucionalizar Processo Gerenciado (documentar, treinar, monitorar)</td></tr>
+          <tr><td>Prática Genérica (GP)</td><td>Como atingir a GG</td><td>GP 2.2: Planejar o Processo<br>GP 2.5: Treinar Pessoas<br>GP 2.8: Monitorar e Controlar</td></tr>
+        </tbody>
+      </table></div>
+      <div class="callout tip"><span class="callout-icon">✅</span><div>As <strong>Metas Genéricas</strong> são o que tornam o CMMI poderoso: não basta executar uma prática uma vez — é preciso que ela esteja <em>institucionalizada</em>, com planos, treinamento, recursos alocados e monitoramento. Isso é o que separa uma prática eventual de um processo confiável.</div></div>
+    </div>
+
+    <!-- 09 -->
+    <div class="section" id="s9">
+      <div class="section-header"><div class="sec-num">09</div><h2>Método de avaliação SCAMPI</h2></div>
+      <p>O <strong>SCAMPI</strong> (Standard CMMI Appraisal Method for Process Improvement) é o método oficial de avaliação CMMI. Existem três classes de avaliação com diferentes rigores e propósitos:</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Classe</th><th>Propósito</th><th>Rigor</th><th>Resultado</th></tr></thead>
+        <tbody>
+          <tr><td>SCAMPI A</td><td>Avaliação formal e oficial para certificação</td><td>Máximo — evidências diretas obrigatórias</td><td>Nível oficial publicável pelo CMMI Institute</td></tr>
+          <tr><td>SCAMPI B</td><td>Avaliação semi-formal para diagnóstico</td><td>Médio — mix de evidências diretas e indiretas</td><td>Perfil interno de forças e fraquezas</td></tr>
+          <tr><td>SCAMPI C</td><td>Avaliação informal de checklist</td><td>Baixo — baseado em entrevistas e questionários</td><td>Gap analysis interno e orientação de melhoria</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Fases do SCAMPI A</h3>
+      <ol class="step-list">
+        <li><span class="step-badge">1</span><span><strong>Planejamento:</strong> definir escopo, selecionar equipe de avaliação (liderada por um Lead Appraiser certificado pelo CMMI Institute) e preparar o plano de avaliação.</span></li>
+        <li><span class="step-badge">2</span><span><strong>Preparação:</strong> coleta e revisão de evidências (artefatos, documentos, registros) pela organização avaliada. Os artefatos são o "combustível" da avaliação.</span></li>
+        <li><span class="step-badge">3</span><span><strong>Condução no local:</strong> entrevistas, revisão de artefatos in loco e consolidação dos achados. Cada PA é julgada como "Satisfeita" ou "Não Satisfeita".</span></li>
+        <li><span class="step-badge">4</span><span><strong>Reporte:</strong> comunicação dos resultados — nível atingido (Staged) ou perfil de capacidade (Continuous) — à organização e publicação no banco de dados oficial do CMMI Institute.</span></li>
+      </ol>
+    </div>
+
+    <!-- 10 -->
+    <div class="section" id="s10">
+      <div class="section-header"><div class="sec-num">10</div><h2>CMMI vs. MPS.Br vs. SPICE</h2></div>
+      <p>Os três modelos servem ao mesmo propósito — avaliar maturidade de processos — mas têm origens, abordagens e contextos de uso distintos:</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Critério</th><th>CMMI</th><th>MPS.Br</th><th>SPICE (ISO 330xx)</th></tr></thead>
+        <tbody>
+          <tr><td>Origem</td><td>SEI / CMMI Institute (EUA)</td><td>SOFTEX (Brasil)</td><td>ISO/IEC (Internacional)</td></tr>
+          <tr><td>Foco</td><td>Desenvolvimento, serviços, aquisição</td><td>Software (PMEs brasileiras)</td><td>Processos de software e sistemas</td></tr>
+          <tr><td>Níveis</td><td>5 níveis (staged) ou 0-3 por PA (continuous)</td><td>7 níveis (G a A)</td><td>6 níveis (0 a 5) por processo</td></tr>
+          <tr><td>Representação</td><td>Staged e Continuous</td><td>Apenas Staging</td><td>Apenas Continuous</td></tr>
+          <tr><td>Custo típico</td><td>Alto (SCAMPI A pode superar US$100 mil)</td><td>Médio (acessível para PMEs)</td><td>Variável</td></tr>
+          <tr><td>Reconhecimento</td><td>Global (especialmente DoD / grandes empresas)</td><td>Brasil e América Latina</td><td>Global (especialmente Europa e automobilístico)</td></tr>
+          <tr><td>Avaliação</td><td>SCAMPI A/B/C</td><td>Avaliação MPS</td><td>ISO/IEC 33002</td></tr>
+        </tbody>
+      </table></div>
+      <div class="callout tip"><span class="callout-icon">✅</span><div>O MPS.Br foi desenvolvido com base no SPICE e no CMMI, mas com <strong>custo de implementação significativamente menor</strong> — tornando-o mais viável para as pequenas e médias empresas de software brasileiras, que representam mais de 90% do setor.</div></div>
+    </div>
+
+    <!-- 11 -->
+    <div class="section" id="s11">
+      <div class="section-header"><div class="sec-num">11</div><h2>ROI de maturidade de processos</h2></div>
+      <p>A pergunta mais frequente dos gestores: <em>"vale o investimento?"</em> Estudos do SEI e da SOFTEX mostram que a resposta quase sempre é sim — mas o retorno demora entre 1 e 3 anos para superar o investimento inicial.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Métrica</th><th>Nível 1 (típico)</th><th>Nível 3–4 (típico)</th><th>Melhoria</th></tr></thead>
+        <tbody>
+          <tr><td>Custo de retrabalho (% do orçamento)</td><td>40–55%</td><td>5–15%</td><td>↓ ~70%</td></tr>
+          <tr><td>Aderência ao prazo</td><td>&lt;50%</td><td>&gt;85%</td><td>↑ 35pp</td></tr>
+          <tr><td>Densidade de defeitos em produção</td><td>Alta / imprevisível</td><td>Baixa / controlada</td><td>↓ 50–80%</td></tr>
+          <tr><td>Produtividade (função pontos/pessoa-mês)</td><td>Baseline variável</td><td>+25 a +50%</td><td>↑ significativa</td></tr>
+        </tbody>
+      </table></div>
+      <div class="callout info"><span class="callout-icon">ℹ️</span><div>Pesquisa da SOFTEX com empresas MPS.Br brasileiras mostrou ROI médio de <strong>R$6,67 para cada R$1 investido</strong> no programa de melhoria — considerando redução de retrabalho, ganhos de produtividade e novos contratos obtidos graças à certificação.</div></div>
+    </div>
+
+    <!-- 12 -->
+    <div class="section" id="s12">
+      <div class="section-header"><div class="sec-num">12</div><h2>Estudo de caso — TechGov em busca do CMMI Nível 3</h2></div>
+      <p><strong>Cenário:</strong> a empresa TechGov Sistemas Ltda. deseja obter a certificação CMMI-DEV Nível 3 para participar de licitações do governo federal que exigem esse nível. Ela está atualmente no Nível 1 (processos caóticos, altamente dependentes de pessoas-chave).</p>
+      <ol class="step-list">
+        <li><span class="step-badge">1</span><span><strong>Gap Analysis (SCAMPI C):</strong> um Lead Appraiser conduz uma avaliação informal. Resultado: das 18 PAs necessárias para o Nível 3, apenas 4 são parcialmente satisfeitas. Planejamento de Projetos e Gestão de Requisitos são os maiores gaps.</span></li>
+        <li><span class="step-badge">2</span><span><strong>Programa de melhoria (18 meses):</strong> a empresa contrata um consultor, cria um SEPG (Software Engineering Process Group) interno e começa a implementar as PAs do Nível 2 primeiro. Treinamento de 100% dos gerentes de projeto.</span></li>
+        <li><span class="step-badge">3</span><span><strong>Institucionalização:</strong> criação do processo padrão organizacional (OPD), com templates de plano de projeto, checklists de revisão e base de estimativas históricas. Projetos passam a usar e adaptar esse processo padrão.</span></li>
+        <li><span class="step-badge">4</span><span><strong>SCAMPI B (diagnóstico):</strong> após 12 meses, um SCAMPI B mostra 15 das 18 PAs satisfeitas. As 3 PAs restantes (OPF, IPM e VER) recebem atenção específica nos 6 meses seguintes.</span></li>
+        <li><span class="step-badge">5</span><span><strong>SCAMPI A (certificação):</strong> avaliação formal conduzida por Lead Appraiser externo. Todas as 18 PAs satisfeitas. TechGov obtém <strong>CMMI-DEV Nível 3</strong> e entra no banco de dados oficial do CMMI Institute — habilitando participação em licitações antes inacessíveis.</span></li>
+      </ol>
+      <div class="callout tip"><span class="callout-icon">✅</span><div><strong>Lição do caso:</strong> a jornada do Nível 1 ao Nível 3 não é sobre documentar processos — é sobre <em>mudar a forma de trabalhar</em>. Empresas que documentam apenas para passar na avaliação regridem rapidamente ao Nível 1. As que internalizaram os processos mantêm o nível e continuam melhorando.</div></div>
+    </div>
+
+  </div>
+</div>
+<script>
+window.addEventListener('scroll',()=>{const p=(window.scrollY/(document.body.scrollHeight-window.innerHeight))*100;document.getElementById('progress').style.width=p+'%'});
+const navLinks=document.querySelectorAll('.nav-item[href]');
+const sections=document.querySelectorAll('.section[id]');
+const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){navLinks.forEach(a=>a.classList.remove('active'));const a=document.querySelector(`.nav-item[href="#${e.target.id}"]`);if(a)a.classList.add('active')}})},{rootMargin:'-20% 0px -70% 0px'});
+sections.forEach(s=>obs.observe(s));
+const themeToggle=document.getElementById('themeToggle');
+function applyTheme(dark){document.body.classList.toggle('dark',dark);themeToggle.textContent=dark?'☀️':'🌙'}
+applyTheme(localStorage.getItem('theme')==='dark');
+themeToggle.addEventListener('click',()=>{const d=document.body.classList.contains('dark');localStorage.setItem('theme',d?'light':'dark');applyTheme(!d)});
+const st=document.getElementById('sidebar-toggle'),sb=document.getElementById('sidebar'),mn=document.getElementById('main');
+function applySidebar(h){sb.classList.toggle('hidden',h);mn.classList.toggle('expanded',h);st.classList.toggle('hidden',h);st.textContent=h?'›':'‹'}
+st.addEventListener('click',()=>{const h=sb.classList.contains('hidden');localStorage.setItem('sidebar-hidden',!h);applySidebar(!h)});
+applySidebar(localStorage.getItem('sidebar-hidden')==='true');
+document.querySelectorAll('pre').forEach(pre=>{const btn=document.createElement('button');btn.textContent='Copiar';btn.style.cssText='position:absolute;top:8px;right:8px;padding:3px 10px;font-size:11px;border-radius:5px;border:1px solid var(--ore-border);background:var(--ore-soft);color:var(--ore-deep);cursor:pointer';pre.style.position='relative';pre.appendChild(btn);btn.addEventListener('click',()=>{navigator.clipboard.writeText(pre.textContent.replace('Copiar','').trim());btn.textContent='Copiado!';setTimeout(()=>btn.textContent='Copiar',2000)})});
+</script>
+</body>
+</html>
