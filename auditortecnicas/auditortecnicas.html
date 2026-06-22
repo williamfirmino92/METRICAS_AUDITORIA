@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Função do Auditor e Técnicas de Auditoria · ADS · Senac Rio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,800;1,9..144,300;1,9..144,700&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --ore:#F07830;--ore-deep:#D45E18;--ore-mid:#F59050;--ore-glow:#FDB97A;
+  --ore-soft:#FFF5EE;--ore-muted:#FDDCC0;--ore-border:#FAC89A;
+  --bg:#FFFBF7;--surface:#FFFFFF;--surface2:#FFF8F2;
+  --text:#2C1A0A;--text2:#6B3E1E;--muted:#A06840;--border:#F0E0D0;
+  --green:#16A34A;--green-soft:#F0FDF4;
+  --blue:#1D6FA4;--blue-soft:#EFF6FF;
+  --amber:#D97706;--amber-soft:#FFFBEB;
+  --red:#DC2626;--red-soft:#FEF2F2;
+  --purple:#7C3AED;--purple-soft:#F5F3FF;
+  --radius:12px;--shadow:0 2px 16px rgba(200,100,30,.07);
+  --sidebar-w:268px;--font:'DM Sans',system-ui,sans-serif;--mono:'DM Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:15px}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.75}
+#progress{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--ore),var(--ore-glow));z-index:100;width:0%;transition:width .1s}
+#sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;background:var(--bg);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;z-index:50;transition:transform .25s ease}
+#sidebar.hidden{transform:translateX(-100%)}
+.sidebar-logo{padding:24px 24px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.logo-icon{width:34px;height:34px;background:var(--ore);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.logo-text{font-size:.92rem;font-weight:700;color:var(--ore-deep);line-height:1.2}
+.logo-sub{font-size:.72rem;font-weight:400;color:var(--muted)}
+.sidebar-nav{flex:1;overflow-y:auto;padding:16px 0}
+.nav-group-label{padding:8px 24px 4px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 24px;font-size:.82rem;color:var(--muted);text-decoration:none;border-left:2px solid transparent;transition:all .15s}
+.nav-item:hover{background:var(--ore-soft);color:var(--ore-deep);border-left-color:var(--ore-border)}
+.nav-item.active{background:var(--ore-soft);color:var(--ore-deep);font-weight:600;border-left-color:var(--ore)}
+.nav-num{font-family:var(--mono);font-size:.68rem;color:var(--muted);min-width:22px}
+.sidebar-footer{padding:16px 24px;border-top:1px solid var(--border);font-size:.75rem;color:var(--muted)}
+#sidebar-toggle{position:fixed;top:50%;left:var(--sidebar-w);transform:translateY(-50%) translateX(-50%);z-index:60;width:20px;height:48px;background:var(--ore);border:none;border-radius:0 6px 6px 0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:left .25s ease,background .15s;color:#fff;font-size:.65rem}
+#sidebar-toggle:hover{background:var(--ore-deep)}
+#sidebar-toggle.hidden{left:0;transform:translateY(-50%) translateX(0)}
+#main{margin-left:var(--sidebar-w);min-height:100vh;transition:margin-left .25s ease}
+#main.expanded{margin-left:0}
+.topbar{position:sticky;top:0;z-index:40;background:rgba(255,251,247,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px 48px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.topbar-back{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;font-weight:600;color:var(--ore-deep);background:var(--ore-soft);border:1px solid var(--ore-muted);padding:5px 12px;border-radius:7px;text-decoration:none;transition:background .15s;flex-shrink:0}
+.topbar-back:hover{background:var(--ore-muted)}
+.topbar-title{font-size:.88rem;font-weight:600;color:var(--text2)}
+.topbar-tags{display:flex;gap:8px;flex-wrap:wrap}
+.chip{font-size:.72rem;font-weight:600;padding:3px 10px;border-radius:20px;background:var(--ore-muted);color:var(--ore-deep);border:1px solid var(--ore-border);font-family:var(--mono)}
+.theme-toggle{width:32px;height:32px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,border-color .15s;flex-shrink:0;line-height:1}
+.theme-toggle:hover{background:var(--ore-muted);border-color:var(--ore-border)}
+.content{max-width:820px;margin:0 auto;padding:56px 48px 120px}
+.page-header{margin-bottom:48px;padding-bottom:36px;border-bottom:1px solid var(--border)}
+.page-header .eyebrow{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ore);margin-bottom:12px}
+.page-header h1{font-family:'Fraunces',serif;font-size:2.2rem;font-weight:700;letter-spacing:-.025em;color:var(--text);line-height:1.2;margin-bottom:14px}
+.page-header p{font-size:1rem;color:var(--muted);max-width:580px;margin-bottom:24px;line-height:1.7}
+.badge-row{display:flex;gap:8px;flex-wrap:wrap}
+.badge{font-size:.72rem;font-weight:600;padding:4px 12px;border-radius:6px;background:var(--ore-soft);border:1px solid var(--ore-border);color:var(--ore-deep);font-family:var(--mono)}
+.section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:36px 40px;margin-bottom:24px;scroll-margin-top:80px;box-shadow:var(--shadow)}
+.section-header{display:flex;align-items:center;gap:14px;margin-bottom:26px;padding-bottom:18px;border-bottom:2px solid var(--border)}
+.sec-num{width:34px;height:34px;min-width:34px;background:var(--ore-deep);color:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;font-weight:500}
+.section h2{font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:var(--ore-deep);letter-spacing:-.01em}
+h3{font-size:15px;font-weight:700;color:var(--ore-deep);margin:26px 0 11px;padding-left:12px;border-left:3px solid var(--ore)}
+p{margin-bottom:13px;color:var(--text2);font-size:14.5px}
+strong{color:var(--text)}
+ul,ol{padding-left:20px;margin-bottom:13px}
+li{margin-bottom:6px;color:var(--text2);font-size:14px}
+.table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);margin:16px 0}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+thead th{background:var(--ore-deep);color:#fff;padding:10px 15px;text-align:left;font-weight:600;font-size:12px;letter-spacing:.03em}
+tbody td{padding:9px 15px;border-bottom:1px solid var(--border);color:var(--text2);line-height:1.55}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:var(--ore-soft)}
+tbody td:first-child{font-weight:600;color:var(--ore-deep)}
+.callout{display:flex;gap:12px;padding:13px 17px;border-radius:var(--radius);margin:14px 0;font-size:13.5px;line-height:1.6}
+.callout-icon{font-size:17px;flex-shrink:0;margin-top:1px}
+.callout.info{background:var(--blue-soft);border-left:4px solid var(--blue);color:#1e3a5f}
+.callout.tip{background:var(--green-soft);border-left:4px solid var(--green);color:#14532d}
+.callout.warning{background:var(--amber-soft);border-left:4px solid var(--amber);color:#78350f}
+.callout.danger{background:var(--red-soft);border-left:4px solid var(--red);color:#7f1d1d}
+.callout.purple{background:var(--purple-soft);border-left:4px solid var(--purple);color:#4c1d95}
+.highlight-box{background:var(--ore-soft);border:1px solid var(--ore-border);border-left:4px solid var(--ore);border-radius:var(--radius);padding:18px 22px;margin:16px 0}
+.highlight-box h4{font-family:'Fraunces',serif;font-size:13.5px;font-weight:700;color:var(--ore-deep);margin-bottom:7px}
+.highlight-box p{font-size:13.5px;margin:0;color:var(--text2)}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:13px;margin:16px 0}
+.card{background:var(--ore-soft);border:1px solid var(--border);border-radius:var(--radius);padding:17px 19px}
+.card-icon{font-size:21px;margin-bottom:8px;display:block}
+.card h3{font-size:13px;font-weight:700;color:var(--ore-deep);margin:0 0 5px;padding:0;border:none;font-family:var(--font)}
+.card p{font-size:13px;color:var(--muted);margin:0;line-height:1.55}
+.step-list{list-style:none;padding:0;margin:14px 0}
+.step-list li{display:flex;gap:13px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--border)}
+.step-list li:last-child{border-bottom:none}
+.step-badge{min-width:27px;height:27px;background:var(--ore);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:2px}
+.step-list li span{font-size:14px;color:var(--text2)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}
+.col-card{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.col-head{padding:12px 18px;font-weight:700;font-size:13.5px;color:#fff}
+.col-head.a{background:var(--ore-deep)}.col-head.b{background:var(--blue)}
+.col-body{padding:16px 18px;background:var(--surface)}
+.col-body ul{list-style:none;padding:0}
+.col-body li{font-size:13px;color:var(--text2);padding:5px 0;border-bottom:1px solid var(--border);display:flex;gap:8px}
+.col-body li:last-child{border-bottom:none}
+.col-body li::before{content:'→';color:var(--ore);font-weight:700;flex-shrink:0}
+.pill-row{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0}
+.pill{padding:3px 11px;border-radius:20px;font-size:12px;font-weight:600}
+.pill.ore{background:var(--ore-soft);color:var(--ore-deep);border:1px solid var(--ore-border)}
+.pill.blue{background:#dbeafe;color:#1e40af;border:1px solid #93c5fd}
+.pill.green{background:#dcfce7;color:#166534;border:1px solid #86efac}
+.pill.amber{background:#fef3c7;color:#92400e;border:1px solid #fcd34d}
+.pill.red{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--ore-border);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--ore-mid)}
+@media(max-width:860px){#sidebar,#sidebar-toggle{display:none}#main{margin-left:0}.content{padding:32px 20px 60px}.topbar{padding:12px 20px}.two-col{grid-template-columns:1fr}}
+body.dark{--bg:#1a0f07;--surface:#201208;--surface2:#2a1a0c;--text:#FFF5EE;--text2:#FDDCC0;--muted:#B07840;--border:#3d2010}
+body.dark #sidebar{background:#140a03;border-color:var(--border)}
+body.dark .topbar{background:rgba(20,10,3,.93)}
+body.dark .sidebar-footer,body.dark .sidebar-logo{border-color:var(--border)}
+body.dark .section{background:var(--surface)}
+body.dark .highlight-box,body.dark .card,body.dark .col-body{background:#2a1a0c}
+body.dark tbody td{color:var(--text2)}
+body.dark tbody tr:hover td{background:#2a1a0c}
+</style>
+<script>if(localStorage.getItem('theme')==='dark')document.body.classList.add('dark');</script>
+</head>
+<body>
+<div id="progress"></div>
+<button id="sidebar-toggle">‹</button>
+<aside id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">🔍</div>
+    <div><div class="logo-text">Auditor e Técnicas</div><div class="logo-sub">ADS · Senac Rio</div></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-group-label">Módulo 1 — O Auditor</div>
+    <a class="nav-item" href="#s1"><span class="nav-num">01</span>Papel e responsabilidades</a>
+    <a class="nav-item" href="#s2"><span class="nav-num">02</span>Auditor interno vs. externo</a>
+    <a class="nav-item" href="#s3"><span class="nav-num">03</span>Independência e ética</a>
+    <div class="nav-group-label">Módulo 2 — O Ciclo</div>
+    <a class="nav-item" href="#s4"><span class="nav-num">04</span>Planejamento da auditoria</a>
+    <a class="nav-item" href="#s5"><span class="nav-num">05</span>Coleta de evidências</a>
+    <a class="nav-item" href="#s6"><span class="nav-num">06</span>Avaliação e achados</a>
+    <a class="nav-item" href="#s7"><span class="nav-num">07</span>Relatório e follow-up</a>
+    <div class="nav-group-label">Módulo 3 — Técnicas</div>
+    <a class="nav-item" href="#s8"><span class="nav-num">08</span>Entrevista e questionários</a>
+    <a class="nav-item" href="#s9"><span class="nav-num">09</span>Observação e walkthrough</a>
+    <a class="nav-item" href="#s10"><span class="nav-num">10</span>Análise documental</a>
+    <a class="nav-item" href="#s11"><span class="nav-num">11</span>Testes de controle</a>
+    <a class="nav-item" href="#s12"><span class="nav-num">12</span>Amostragem estatística</a>
+    <div class="nav-group-label">Módulo 4 — Aplicação</div>
+    <a class="nav-item" href="#s13"><span class="nav-num">13</span>Auditoria de sistemas de TI</a>
+    <a class="nav-item" href="#s14"><span class="nav-num">14</span>Estudo de caso</a>
+  </nav>
+  <div class="sidebar-footer">Métricas e Auditoria de Software<br>ADS · Senac Rio · 2025.2</div>
+</aside>
+<div id="main">
+  <div class="topbar">
+    <a class="topbar-back" href="../index.html">← Início</a>
+    <span class="topbar-title">Função do Auditor e Técnicas de Auditoria 🔍</span>
+    <div class="topbar-tags">
+      <span class="chip">4 módulos</span>
+      <span class="chip">14 seções</span>
+      <span class="chip">Técnicas · Evidências</span>
+    </div>
+    <button class="theme-toggle" id="themeToggle">🌙</button>
+  </div>
+  <div class="content">
+    <div class="page-header">
+      <div class="eyebrow">Métricas e Auditoria de Software · Análise e Desenvolvimento de Sistemas</div>
+      <h1>Função do Auditor e Técnicas de Auditoria</h1>
+      <p>Quem é o auditor, o que ele faz, como planeja sua investigação e quais ferramentas usa para colher evidências objetivas que fundamentam suas conclusões.</p>
+      <div class="badge-row">
+        <span class="badge">Auditoria Interna</span>
+        <span class="badge">Auditoria Externa</span>
+        <span class="badge">Planejamento</span>
+        <span class="badge">Evidências</span>
+        <span class="badge">Amostragem</span>
+        <span class="badge">Relatório</span>
+      </div>
+    </div>
+
+    <!-- 01 -->
+    <div class="section" id="s1">
+      <div class="section-header"><div class="sec-num">01</div><h2>Papel e responsabilidades do auditor</h2></div>
+      <p>O auditor é o profissional responsável por examinar, de forma objetiva e independente, se os processos, controles e sistemas de uma organização estão funcionando conforme as regras, normas e objetivos estabelecidos. No contexto de software, ele combina conhecimento de <strong>tecnologia da informação</strong> com metodologia de <strong>auditoria e controles</strong>.</p>
+      <div class="card-grid">
+        <div class="card"><span class="card-icon">🔎</span><h3>Examinar</h3><p>Analisar processos, artefatos, logs e evidências para verificar conformidade com políticas e normas.</p></div>
+        <div class="card"><span class="card-icon">⚖️</span><h3>Avaliar</h3><p>Julgar a adequação e eficácia dos controles internos com base em critérios predefinidos.</p></div>
+        <div class="card"><span class="card-icon">📋</span><h3>Reportar</h3><p>Comunicar achados, riscos e recomendações de forma clara e objetiva à gestão e partes interessadas.</p></div>
+        <div class="card"><span class="card-icon">🔄</span><h3>Acompanhar</h3><p>Monitorar a implementação das ações corretivas acordadas após a emissão do relatório.</p></div>
+      </div>
+      <h3>Competências essenciais</h3>
+      <ul>
+        <li><strong>Ceticismo profissional:</strong> questionar evidências, não aceitar afirmações sem comprovação</li>
+        <li><strong>Julgamento técnico:</strong> avaliar a relevância e suficiência das provas coletadas</li>
+        <li><strong>Comunicação:</strong> traduzir achados técnicos em linguagem compreensível para a gestão</li>
+        <li><strong>Confidencialidade:</strong> proteger informações sensíveis acessadas durante a auditoria</li>
+        <li><strong>Conhecimento de TI:</strong> entender arquitetura de sistemas, bancos de dados e controles técnicos</li>
+      </ul>
+      <div class="callout info"><span class="callout-icon">ℹ️</span><div>Ceticismo profissional não é desconfiança pessoal — é a postura técnica de <strong>não aceitar evidências sem avaliação crítica</strong>, independentemente da reputação da fonte.</div></div>
+    </div>
+
+    <!-- 02 -->
+    <div class="section" id="s2">
+      <div class="section-header"><div class="sec-num">02</div><h2>Auditor interno vs. auditor externo</h2></div>
+      <p>Existem dois tipos fundamentais de auditoria, definidos pela <strong>relação do auditor com a organização auditada</strong>. Cada tipo tem propósitos, vinculações e produtos diferentes.</p>
+      <div class="two-col">
+        <div class="col-card">
+          <div class="col-head a">🏢 Auditor Interno</div>
+          <div class="col-body"><ul>
+            <li>Funcionário ou contratado fixo da organização</li>
+            <li>Reporta ao Conselho ou Comitê de Auditoria</li>
+            <li>Foco em eficiência, gestão de riscos e governança</li>
+            <li>Trabalho contínuo ao longo do ano</li>
+            <li>Produto: relatório interno, sem divulgação pública</li>
+            <li>Referência: IIA (Institute of Internal Auditors)</li>
+          </ul></div>
+        </div>
+        <div class="col-card">
+          <div class="col-head b">🌐 Auditor Externo</div>
+          <div class="col-body"><ul>
+            <li>Empresa ou profissional independente e terceirizado</li>
+            <li>Contratado pelo Conselho, não pela gestão executiva</li>
+            <li>Foco em conformidade regulatória e confiabilidade das demonstrações</li>
+            <li>Trabalho periódico e pontual (anual, semestral)</li>
+            <li>Produto: parecer ou certificado público</li>
+            <li>Referência: CFC, CVM, PCAOB (empresas abertas)</li>
+          </ul></div>
+        </div>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Critério</th><th>Interno</th><th>Externo</th></tr></thead>
+        <tbody>
+          <tr><td>Vínculo</td><td>Empregado / terceirizado fixo</td><td>Independente, sem vínculo</td></tr>
+          <tr><td>Mandato</td><td>Conselho / Comitê de Auditoria</td><td>Acionistas / Órgão regulador</td></tr>
+          <tr><td>Objetivo primário</td><td>Agregar valor à gestão de riscos</td><td>Opinar sobre conformidade</td></tr>
+          <tr><td>Periodicidade</td><td>Contínua</td><td>Periódica (geralmente anual)</td></tr>
+          <tr><td>Relatório</td><td>Uso interno</td><td>Público (parecer formal)</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+
+    <!-- 03 -->
+    <div class="section" id="s3">
+      <div class="section-header"><div class="sec-num">03</div><h2>Independência e ética profissional</h2></div>
+      <p>A <strong>independência</strong> é o alicerce da credibilidade da auditoria. Sem ela, qualquer conclusão pode ser questionada como parcial. Existem duas dimensões de independência:</p>
+      <div class="card-grid">
+        <div class="card"><span class="card-icon">🧠</span><h3>Independência de Mente</h3><p>Estado mental que permite formar uma opinião sem ser influenciado por pressões. O auditor chega às conclusões pelos dados, não pelo que a gestão quer ouvir.</p></div>
+        <div class="card"><span class="card-icon">👁️</span><h3>Independência em Aparência</h3><p>Ausência de fatos ou circunstâncias que um terceiro razoável avaliaria como comprometedores da objetividade. Evitar conflitos de interesse visíveis.</p></div>
+      </div>
+      <h3>Principais ameaças à independência</h3>
+      <ul>
+        <li><strong>Interesse próprio:</strong> ter participação financeira na entidade auditada</li>
+        <li><strong>Autorrevisão:</strong> auditar seu próprio trabalho anterior</li>
+        <li><strong>Familiaridade:</strong> relacionamento pessoal próximo com o auditado</li>
+        <li><strong>Intimidação:</strong> pressão da gestão para alterar conclusões</li>
+        <li><strong>Advocacia:</strong> promover os interesses do cliente de forma incompatível com objetividade</li>
+      </ul>
+      <div class="callout warning"><span class="callout-icon">⚠️</span><div>Um auditor de TI que desenvolveu o sistema que está auditando viola o princípio de <strong>independência por autorrevisão</strong>. Nesse caso, ele deve ser substituído por outro profissional sem envolvimento no desenvolvimento.</div></div>
+    </div>
+
+    <!-- 04 -->
+    <div class="section" id="s4">
+      <div class="section-header"><div class="sec-num">04</div><h2>Planejamento da auditoria</h2></div>
+      <p>O planejamento é a fase mais crítica da auditoria. Um plano bem elaborado evita desperdício de tempo, direciona recursos para riscos reais e garante que a conclusão final seja fundamentada. O planejamento envolve quatro etapas principais:</p>
+      <ol class="step-list">
+        <li><span class="step-badge">1</span><span><strong>Definição do escopo e objetivos:</strong> o que será auditado, por que, e quais critérios de avaliação serão usados (norma, política interna, contrato).</span></li>
+        <li><span class="step-badge">2</span><span><strong>Avaliação de risco:</strong> identificar os processos e controles com maior probabilidade de falha e maior impacto — priorizando o esforço de auditoria onde ele mais importa.</span></li>
+        <li><span class="step-badge">3</span><span><strong>Programa de auditoria:</strong> documento detalhando quais testes serão executados, quando, por quem e quais evidências serão coletadas.</span></li>
+        <li><span class="step-badge">4</span><span><strong>Comunicação inicial (kickoff):</strong> reunião de abertura com os auditados para esclarecer objetivos, cronograma e o que será solicitado.</span></li>
+      </ol>
+      <div class="highlight-box">
+        <h4>📐 Materialidade</h4>
+        <p>Na fase de planejamento, o auditor define um <strong>limiar de materialidade</strong>: o valor ou nível de erro abaixo do qual uma falha não será relatada formalmente. Isso evita que o relatório seja poluído por achados triviais que não impactam as decisões dos usuários do relatório.</p>
+      </div>
+    </div>
+
+    <!-- 05 -->
+    <div class="section" id="s5">
+      <div class="section-header"><div class="sec-num">05</div><h2>Coleta de evidências</h2></div>
+      <p>Evidência de auditoria é qualquer informação usada pelo auditor para sustentar suas conclusões. Para ser válida, a evidência deve ter quatro características fundamentais:</p>
+      <div class="card-grid">
+        <div class="card"><span class="card-icon">🎯</span><h3>Suficiência</h3><p>Quantidade adequada de evidências para suportar a conclusão. Não é necessária a exaustão — mas não pode ser apenas uma amostra isolada.</p></div>
+        <div class="card"><span class="card-icon">✅</span><h3>Adequação</h3><p>A evidência é relevante para o que está sendo verificado e é confiável em termos de origem (evidência documental > verbal).</p></div>
+        <div class="card"><span class="card-icon">🔗</span><h3>Relevância</h3><p>A evidência está diretamente relacionada ao objetivo do teste de auditoria, não é tangencial ou genérica.</p></div>
+        <div class="card"><span class="card-icon">🛡️</span><h3>Confiabilidade</h3><p>Evidências externas são mais confiáveis que internas. Documentos originais valem mais que cópias. Observação direta supera descrições verbais.</p></div>
+      </div>
+      <h3>Hierarquia de confiabilidade</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Tipo de evidência</th><th>Exemplo</th><th>Confiabilidade</th></tr></thead>
+        <tbody>
+          <tr><td>Evidência física</td><td>Observação direta de um controle em operação</td><td>⭐⭐⭐⭐⭐ Mais alta</td></tr>
+          <tr><td>Documental externa</td><td>Contrato, nota fiscal, extrato bancário</td><td>⭐⭐⭐⭐</td></tr>
+          <tr><td>Documental interna</td><td>Logs de sistema, relatórios internos</td><td>⭐⭐⭐</td></tr>
+          <tr><td>Analítica</td><td>Comparação de dados, tendências, benchmarks</td><td>⭐⭐</td></tr>
+          <tr><td>Verbal / depoimento</td><td>Entrevista, declaração de funcionário</td><td>⭐ Mais baixa</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+
+    <!-- 06 -->
+    <div class="section" id="s6">
+      <div class="section-header"><div class="sec-num">06</div><h2>Avaliação e achados</h2></div>
+      <p>Após coletar as evidências, o auditor avalia se os critérios foram atendidos. Os desvios encontrados são chamados de <strong>achados de auditoria</strong>. Um achado formal tem cinco componentes obrigatórios:</p>
+      <ol class="step-list">
+        <li><span class="step-badge">C</span><span><strong>Condição (o que é):</strong> descrição factual da situação encontrada — "o processo X não possui aprovação formal documentada".</span></li>
+        <li><span class="step-badge">C</span><span><strong>Critério (o que deveria ser):</strong> a norma, política ou requisito que está sendo violado — "a Política de Segurança §3.2 exige aprovação formal de dois níveis".</span></li>
+        <li><span class="step-badge">C</span><span><strong>Causa (por que aconteceu):</strong> análise da raiz do problema — "ausência de procedimento operacional documentado para o processo de aprovação".</span></li>
+        <li><span class="step-badge">E</span><span><strong>Efeito (qual o impacto):</strong> consequência real ou potencial da condição — "risco de acesso não autorizado a dados de clientes".</span></li>
+        <li><span class="step-badge">R</span><span><strong>Recomendação (como corrigir):</strong> ação corretiva proposta — "criar e implementar SOP de aprovação de acesso até [data]".</span></li>
+      </ol>
+      <div class="callout tip"><span class="callout-icon">✅</span><div>Sem os 5 componentes (CCCER), um achado não é completo. Um auditor que aponta um problema sem identificar a causa e propor recomendação entrega um relatório incompleto.</div></div>
+    </div>
+
+    <!-- 07 -->
+    <div class="section" id="s7">
+      <div class="section-header"><div class="sec-num">07</div><h2>Relatório de auditoria e follow-up</h2></div>
+      <p>O relatório é o produto final e o principal entregável de uma auditoria. Deve ser <strong>claro, objetivo e baseado exclusivamente em evidências</strong>. Opiniões sem suporte factual não têm lugar no relatório.</p>
+      <h3>Estrutura típica do relatório</h3>
+      <ul>
+        <li><strong>Sumário executivo:</strong> visão geral para a alta gestão — sem jargões técnicos, destacando os achados críticos</li>
+        <li><strong>Objetivo e escopo:</strong> o que foi auditado, o período coberto e as limitações do trabalho</li>
+        <li><strong>Metodologia:</strong> técnicas usadas, amostras selecionadas, critérios de avaliação</li>
+        <li><strong>Achados e recomendações:</strong> cada achado com seus 5 componentes (CCCER)</li>
+        <li><strong>Classificação de risco:</strong> cada achado classificado como Crítico, Alto, Médio ou Baixo</li>
+        <li><strong>Resposta da gestão:</strong> plano de ação acordado com o auditado e prazo de implementação</li>
+      </ul>
+      <h3>Follow-up</h3>
+      <p>A auditoria não termina com a emissão do relatório. O auditor deve <strong>acompanhar a implementação das ações corretivas</strong> e verificar, em auditoria subsequente, se as falhas foram efetivamente corrigidas — e não apenas documentadas como corrigidas.</p>
+      <div class="callout danger"><span class="callout-icon">🚨</span><div>Achados "fechados" sem verificação real são um risco grave. Um controle "corrigido" apenas no papel — sem evidência de que a nova prática está sendo seguida — não elimina o risco original.</div></div>
+    </div>
+
+    <!-- 08 -->
+    <div class="section" id="s8">
+      <div class="section-header"><div class="sec-num">08</div><h2>Técnica: Entrevista e questionários</h2></div>
+      <p>A <strong>entrevista</strong> é a técnica de coleta de informação por excelência. Permite entender rapidamente como um processo funciona na prática, identificar variações em relação ao procedimento formal e detectar riscos não documentados. Seu principal limite: <strong>evidência verbal é a menos confiável</strong> — toda informação obtida deve ser corroborada por documentação ou observação.</p>
+      <h3>Boas práticas na condução de entrevistas</h3>
+      <ul>
+        <li>Preparar roteiro estruturado com perguntas abertas ("como você faz X?") e fechadas ("você aprova isso antes de enviar?")</li>
+        <li>Entrevistar diferentes níveis hierárquicos — a descrição do processo pelo gerente pode diferir da prática real do operador</li>
+        <li>Evitar perguntas indutivas ("você faz isso da forma correta, certo?")</li>
+        <li>Documentar respostas imediatamente — com hora, nome e cargo do entrevistado</li>
+        <li>Sempre buscar a evidência corroborante ("você pode me mostrar o documento/log disso?")</li>
+      </ul>
+      <div class="highlight-box">
+        <h4>📝 Questionários (Checklist de Auditoria)</h4>
+        <p>Quando o escopo envolve múltiplas unidades ou locais, questionários padronizados garantem consistência. Cada questão deve mapear para um critério de auditoria específico e prever o tipo de evidência que validará a resposta.</p>
+      </div>
+    </div>
+
+    <!-- 09 -->
+    <div class="section" id="s9">
+      <div class="section-header"><div class="sec-num">09</div><h2>Técnica: Observação e walkthrough</h2></div>
+      <p>A <strong>observação direta</strong> gera a evidência física mais confiável disponível ao auditor — ver o controle funcionando em tempo real elimina a possibilidade de que o processo foi preparado apenas para a entrevista.</p>
+      <div class="two-col">
+        <div class="col-card">
+          <div class="col-head a">👁️ Observação</div>
+          <div class="col-body"><ul>
+            <li>Auditor assiste ao processo sendo executado</li>
+            <li>Ideal para controles físicos (acesso a datacenter)</li>
+            <li>Válida apenas no momento observado</li>
+            <li>Pode criar o "efeito auditoria" — comportamento atípico</li>
+          </ul></div>
+        </div>
+        <div class="col-card">
+          <div class="col-head b">🔄 Walkthrough</div>
+          <div class="col-body"><ul>
+            <li>Rastreamento de uma transação do início ao fim</li>
+            <li>Valida se o fluxo documentado reflete a realidade</li>
+            <li>Identifica controles ausentes no fluxo</li>
+            <li>Gera evidência do caminho completo do processo</li>
+          </ul></div>
+        </div>
+      </div>
+      <div class="callout info"><span class="callout-icon">ℹ️</span><div>O <strong>walkthrough</strong> é obrigatório nas avaliações SOX (Sarbanes-Oxley) para entender o design dos controles antes de testá-los. Ele responde "o controle está desenhado corretamente?" antes de testar "ele está funcionando?".</div></div>
+    </div>
+
+    <!-- 10 -->
+    <div class="section" id="s10">
+      <div class="section-header"><div class="sec-num">10</div><h2>Técnica: Análise documental</h2></div>
+      <p>A análise documental é a técnica mais usada em auditorias de TI e conformidade. Envolve examinar <strong>registros, logs, relatórios, contratos e políticas</strong> para verificar se há evidência de que os controles operaram conforme projetado durante o período auditado.</p>
+      <h3>Tipos de documentos analisados em auditoria de TI</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Tipo de documento</th><th>O que evidencia</th></tr></thead>
+        <tbody>
+          <tr><td>Logs de acesso ao sistema</td><td>Quem acessou o quê, quando — controle de autenticação</td></tr>
+          <tr><td>Tickets de mudança (ITSM)</td><td>Processo de gestão de mudanças — aprovação e segregação de funções</td></tr>
+          <tr><td>Relatórios de teste e QA</td><td>Processo de garantia de qualidade antes da implantação</td></tr>
+          <tr><td>Atas de revisão de projeto</td><td>Supervisão gerencial e rastreabilidade de decisões</td></tr>
+          <tr><td>Contratos de SLA com fornecedores</td><td>Controles sobre terceiros e gestão de riscos de fornecedores</td></tr>
+          <tr><td>Políticas e procedimentos (SOPs)</td><td>Design do controle — o que deveria estar sendo feito</td></tr>
+        </tbody>
+      </table></div>
+      <div class="callout warning"><span class="callout-icon">⚠️</span><div>Políticas existentes não provam que os controles estão sendo seguidos. O auditor verifica tanto o <strong>design</strong> (a política é adequada?) quanto a <strong>operação</strong> (a política está sendo seguida de fato?).</div></div>
+    </div>
+
+    <!-- 11 -->
+    <div class="section" id="s11">
+      <div class="section-header"><div class="sec-num">11</div><h2>Técnica: Testes de controle</h2></div>
+      <p>Os <strong>testes de controle</strong> verificam se um controle específico operou eficazmente durante todo o período auditado — não apenas em um momento isolado. São a espinha dorsal de auditorias de conformidade como a SOX.</p>
+      <h3>Design do teste vs. Eficácia operacional</h3>
+      <div class="two-col">
+        <div class="col-card">
+          <div class="col-head a">📐 Teste de Design</div>
+          <div class="col-body"><ul>
+            <li>O controle está adequadamente projetado?</li>
+            <li>Se operasse perfeito, preveniria ou detectaria o risco?</li>
+            <li>Executado via walkthrough e revisão documental</li>
+            <li>Responde: "o controle seria eficaz, em teoria?"</li>
+          </ul></div>
+        </div>
+        <div class="col-card">
+          <div class="col-head b">⚙️ Teste de Eficácia Operacional</div>
+          <div class="col-body"><ul>
+            <li>O controle operou conforme projetado no período?</li>
+            <li>Evidência de que foi aplicado consistentemente</li>
+            <li>Executado por amostragem de transações/eventos</li>
+            <li>Responde: "o controle funcionou, na prática?"</li>
+          </ul></div>
+        </div>
+      </div>
+      <p>Para controles automatizados (ex: validação de campo obrigatório em sistema), um único teste pode ser suficiente — o sistema aplica o controle de forma idêntica todas as vezes. Para controles manuais (ex: aprovação de acesso por gerente), é necessária uma amostra representativa porque cada execução envolve julgamento humano.</p>
+    </div>
+
+    <!-- 12 -->
+    <div class="section" id="s12">
+      <div class="section-header"><div class="sec-num">12</div><h2>Amostragem estatística em auditoria</h2></div>
+      <p>Quando o universo de transações é grande demais para testar 100%, o auditor usa <strong>amostragem</strong> para inferir sobre o todo. A amostragem estatística garante que a amostra é representativa e que as conclusões podem ser extrapoladas com um grau de confiança calculado.</p>
+      <h3>Principais métodos de amostragem</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Método</th><th>Descrição</th><th>Quando usar</th></tr></thead>
+        <tbody>
+          <tr><td>Aleatória simples</td><td>Cada item tem igual chance de ser selecionado</td><td>Universo homogêneo e bem definido</td></tr>
+          <tr><td>Sistemática</td><td>Selecionar a cada N itens (ex: todo 10º registro)</td><td>Grande volume com risco uniforme</td></tr>
+          <tr><td>Estratificada</td><td>Dividir em grupos e amostrar cada grupo</td><td>Universo heterogêneo (ex: por valor)</td></tr>
+          <tr><td>Por julgamento</td><td>Auditor seleciona com base em risco percebido</td><td>Complemento à estatística; alta materialidade</td></tr>
+          <tr><td>Monetária por unidade (MUS)</td><td>Probabilidade proporcional ao valor</td><td>Foco em itens de alto valor monetário</td></tr>
+        </tbody>
+      </table></div>
+      <div class="highlight-box">
+        <h4>📊 Tamanho da amostra</h4>
+        <p>O tamanho mínimo depende do <strong>nível de confiança desejado</strong> e da <strong>taxa de exceção tolerável</strong>. Em auditorias SOX para controles de baixo risco, amostras de 25 itens são comuns. Para controles críticos ou de alta frequência, 60 ou mais itens são exigidos pelos guias PCAOB.</p>
+      </div>
+    </div>
+
+    <!-- 13 -->
+    <div class="section" id="s13">
+      <div class="section-header"><div class="sec-num">13</div><h2>Auditoria de sistemas de TI</h2></div>
+      <p>A auditoria de sistemas de TI vai além da conformidade de processos — ela examina a <strong>integridade, disponibilidade e confidencialidade</strong> dos sistemas que suportam o negócio. O framework mais utilizado é o <strong>COBIT</strong>, que alinha governança de TI com objetivos de negócio.</p>
+      <h3>Áreas-chave da auditoria de TI</h3>
+      <ul>
+        <li><strong>Controles gerais de TI (ITGCs):</strong> gestão de acesso, gestão de mudanças, operações de TI e continuidade de negócios</li>
+        <li><strong>Controles de aplicação:</strong> validações de entrada/saída, integridade de dados, trilhas de auditoria em sistemas</li>
+        <li><strong>Segurança da informação:</strong> políticas de senha, criptografia, gestão de incidentes, acesso privilegiado</li>
+        <li><strong>Continuidade:</strong> planos de disaster recovery, backups e testes de restauração</li>
+        <li><strong>Desenvolvimento e aquisição:</strong> processos de SDLC, testes antes da implantação, controle de mudanças</li>
+      </ul>
+      <div class="pill-row">
+        <span class="pill ore">COBIT</span>
+        <span class="pill blue">ISO/IEC 27001</span>
+        <span class="pill green">ITIL</span>
+        <span class="pill amber">NIST SP 800-53</span>
+        <span class="pill red">SOC 2</span>
+      </div>
+    </div>
+
+    <!-- 14 -->
+    <div class="section" id="s14">
+      <div class="section-header"><div class="sec-num">14</div><h2>Estudo de caso — Auditoria de Gestão de Acesso</h2></div>
+      <p><strong>Cenário:</strong> você é auditor interno de uma empresa de software SaaS. Durante a auditoria anual de ITGCs, seu escopo inclui o processo de gestão de acesso ao ambiente de produção. O risco: acesso não autorizado a dados de clientes por ex-funcionários ou usuários com privilégios excessivos.</p>
+      <ol class="step-list">
+        <li><span class="step-badge">1</span><span><strong>Planejamento:</strong> você define o critério (Política de Acesso §4.1: acesso deve ser revogado em 24h após desligamento) e o universo (85 desligamentos no último ano).</span></li>
+        <li><span class="step-badge">2</span><span><strong>Walkthrough:</strong> você observa o processo de offboarding e descobre que o RH envia e-mail ao TI — sem ticket formal de revogação no sistema ITSM.</span></li>
+        <li><span class="step-badge">3</span><span><strong>Amostragem:</strong> você seleciona 25 desligamentos aleatoriamente e extrai do AD a data de desativação da conta de cada um.</span></li>
+        <li><span class="step-badge">4</span><span><strong>Achado:</strong> em 6 dos 25 casos (24%), a conta foi desativada após 48h do desligamento. Em 2 casos, a conta ainda estava ativa após 7 dias.</span></li>
+        <li><span class="step-badge">5</span><span><strong>Relatório:</strong> você documenta o achado com CCCER, classifica como risco Alto e recomenda implementar ticket automático de revogação no sistema de RH integrado ao AD.</span></li>
+      </ol>
+      <div class="callout tip"><span class="callout-icon">✅</span><div><strong>Conclusão do estudo de caso:</strong> a entrevista revelou o problema de design (sem ticket formal). A análise documental (log do AD vs. data de desligamento) revelou a falha operacional (24% de exceção). Juntas, as técnicas fundamentaram um achado robusto e incontestável.</div></div>
+    </div>
+
+  </div>
+</div>
+<script>
+window.addEventListener('scroll',()=>{const p=(window.scrollY/(document.body.scrollHeight-window.innerHeight))*100;document.getElementById('progress').style.width=p+'%'});
+const navLinks=document.querySelectorAll('.nav-item[href]');
+const sections=document.querySelectorAll('.section[id]');
+const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){navLinks.forEach(a=>a.classList.remove('active'));const a=document.querySelector(`.nav-item[href="#${e.target.id}"]`);if(a)a.classList.add('active')}})},{rootMargin:'-20% 0px -70% 0px'});
+sections.forEach(s=>obs.observe(s));
+const themeToggle=document.getElementById('themeToggle');
+function applyTheme(dark){document.body.classList.toggle('dark',dark);themeToggle.textContent=dark?'☀️':'🌙'}
+applyTheme(localStorage.getItem('theme')==='dark');
+themeToggle.addEventListener('click',()=>{const d=document.body.classList.contains('dark');localStorage.setItem('theme',d?'light':'dark');applyTheme(!d)});
+const st=document.getElementById('sidebar-toggle'),sb=document.getElementById('sidebar'),mn=document.getElementById('main');
+function applySidebar(h){sb.classList.toggle('hidden',h);mn.classList.toggle('expanded',h);st.classList.toggle('hidden',h);st.textContent=h?'›':'‹'}
+st.addEventListener('click',()=>{const h=sb.classList.contains('hidden');localStorage.setItem('sidebar-hidden',!h);applySidebar(!h)});
+applySidebar(localStorage.getItem('sidebar-hidden')==='true');
+document.querySelectorAll('pre').forEach(pre=>{const btn=document.createElement('button');btn.textContent='Copiar';btn.style.cssText='position:absolute;top:8px;right:8px;padding:3px 10px;font-size:11px;border-radius:5px;border:1px solid var(--ore-border);background:var(--ore-soft);color:var(--ore-deep);cursor:pointer';pre.style.position='relative';pre.appendChild(btn);btn.addEventListener('click',()=>{navigator.clipboard.writeText(pre.textContent.replace('Copiar','').trim());btn.textContent='Copiado!';setTimeout(()=>btn.textContent='Copiar',2000)})});
+</script>
+</body>
+</html>
